@@ -89,8 +89,16 @@ export function TransactionForm() {
       return;
     }
     
-    // Add the transaction
-    addTransaction(formData);
+    // Add the transaction - explicitly type the formData to ensure all properties are treated as required
+    const transaction = {
+      name: formData.name,
+      amount: formData.amount,
+      category: formData.category,
+      date: formData.date,
+      type: formData.type
+    };
+    
+    addTransaction(transaction);
     
     // Reset form
     setFormData({
