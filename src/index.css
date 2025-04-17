@@ -97,12 +97,12 @@
   /* Financial themed utilities */
   .card-gradient {
     @apply bg-gradient-to-br from-white to-secondary/50 shadow-md dark:from-gray-800 dark:to-gray-900/50 dark:shadow-lg dark:border-gray-700;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
   
   .card-gradient:hover {
     @apply shadow-lg;
-    transform: translateY(-2px);
+    transform: translateY(-4px);
   }
 
   .income-card {
@@ -122,7 +122,7 @@
   }
 
   .finance-input {
-    @apply bg-white/80 focus:bg-white transition-colors duration-200 dark:bg-gray-800/80 dark:focus:bg-gray-800 dark:border-gray-700;
+    @apply bg-white/80 focus:bg-white transition-all duration-300 dark:bg-gray-800/80 dark:focus:bg-gray-800 dark:border-gray-700;
   }
   
   .progress-bar {
@@ -130,11 +130,73 @@
   }
 
   .progress-value {
-    @apply h-full rounded-full transition-all duration-300 ease-in-out;
+    @apply h-full rounded-full transition-all duration-500 ease-in-out;
   }
 
   .total-card {
     @apply p-6 rounded-xl card-gradient flex flex-col;
+  }
+  
+  /* Premium button styles */
+  .btn-income {
+    @apply bg-finance-income hover:bg-finance-income/90 text-white;
+  }
+  
+  .btn-expense {
+    @apply bg-finance-expense hover:bg-finance-expense/90 text-white;
+  }
+  
+  .btn-savings {
+    @apply bg-finance-savings hover:bg-finance-savings/90 text-white;
+  }
+  
+  .btn-neutral {
+    @apply bg-finance-neutral hover:bg-finance-neutral/90 text-white;
+  }
+  
+  /* Category pills */
+  .category-pill {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors;
+  }
+  
+  .category-housing {
+    @apply bg-budget-housing/20 text-budget-housing;
+  }
+  
+  .category-food {
+    @apply bg-budget-food/20 text-budget-food;
+  }
+  
+  .category-transport {
+    @apply bg-budget-transport/20 text-budget-transport;
+  }
+  
+  .category-utilities {
+    @apply bg-budget-utilities/20 text-budget-utilities;
+  }
+  
+  .category-health {
+    @apply bg-budget-health/20 text-budget-health;
+  }
+  
+  .category-entertainment {
+    @apply bg-budget-entertainment/20 text-budget-entertainment;
+  }
+  
+  .category-shopping {
+    @apply bg-budget-shopping/20 text-budget-shopping;
+  }
+  
+  .category-education {
+    @apply bg-budget-education/20 text-budget-education;
+  }
+  
+  .category-savings {
+    @apply bg-budget-savings/20 text-budget-savings;
+  }
+  
+  .category-other {
+    @apply bg-budget-other/20 text-budget-other;
   }
 }
 
@@ -150,11 +212,22 @@
 
 @keyframes slideIn {
   from {
-    transform: translateY(20px);
+    transform: translateY(30px);
     opacity: 0;
   }
   to {
     transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
     opacity: 1;
   }
 }
@@ -173,7 +246,16 @@
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-5px);
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
   }
 }
 
@@ -183,7 +265,11 @@
 }
 
 .animate-slideIn {
-  animation: slideIn 0.5s ease-out forwards;
+  animation: slideIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-slideInRight {
+  animation: slideInRight 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .animate-pulse {
@@ -191,26 +277,33 @@
 }
 
 .animate-bounce {
-  animation: bounce 1s infinite;
+  animation: bounce 1.2s infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
 }
 
 /* Custom button animations */
 .btn-hover-effect {
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .btn-hover-effect:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 /* Custom input animations */
 .input-focus-effect {
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .input-focus-effect:focus {
-  transform: scale(1.01);
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 /* Staggered animation delay utilities */
@@ -232,4 +325,36 @@
 
 .delay-500 {
   animation-delay: 500ms;
+}
+
+/* Premium glassmorphism effects */
+.glass-card {
+  @apply backdrop-blur-md bg-white/40 dark:bg-gray-800/40 border border-white/20 dark:border-gray-700/30;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.glass-button {
+  @apply backdrop-blur-sm bg-white/20 dark:bg-gray-700/20 hover:bg-white/30 dark:hover:bg-gray-700/30;
+}
+
+/* Hover effects */
+.hover-lift {
+  @apply transition-transform duration-300;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+}
+
+/* Text gradient effects */
+.text-gradient-primary {
+  @apply text-transparent bg-clip-text bg-gradient-to-r from-finance-primary to-finance-savings;
+}
+
+.text-gradient-income {
+  @apply text-transparent bg-clip-text bg-gradient-to-r from-finance-income to-finance-income/70;
+}
+
+.text-gradient-expense {
+  @apply text-transparent bg-clip-text bg-gradient-to-r from-finance-expense to-finance-expense/70;
 }

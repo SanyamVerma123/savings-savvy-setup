@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { Header } from "./Header";
 import { useAppContext } from "@/contexts/AppContext";
 import { cn } from "@/lib/utils";
@@ -27,21 +27,25 @@ export function MainLayout({ children }: MainLayoutProps) {
       className={cn(
         "min-h-screen flex flex-col",
         theme === 'light' 
-          ? "bg-gradient-to-br from-blue-50 via-white to-blue-50" 
-          : "bg-gradient-to-br from-gray-900 via-gray-800 to-slate-900"
+          ? "bg-gradient-to-br from-blue-50 via-white to-blue-100 text-gray-800" 
+          : "bg-gradient-to-br from-gray-900 via-gray-800 to-slate-900 text-gray-100"
       )}
     >
       <Header />
       <main className="flex-1 container py-6 md:py-8">
-        <div className="fixed bottom-6 right-6 z-50">
+        <motion.div 
+          className="fixed bottom-6 right-6 z-50"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+        >
           <Button 
             onClick={toggleTheme}
             variant="outline"
             className={cn(
-              "rounded-full p-3 h-12 w-12 hover:scale-110 transition-all",
+              "rounded-full p-3 h-12 w-12 transition-all duration-300",
               theme === 'light' 
-                ? "bg-white text-primary shadow-lg" 
-                : "bg-gray-800 text-primary shadow-lg border-gray-700"
+                ? "bg-white text-primary shadow-lg hover:shadow-xl" 
+                : "bg-gray-800 text-primary shadow-lg border-gray-700 hover:bg-gray-700"
             )}
           >
             {theme === 'light' ? (
@@ -50,14 +54,20 @@ export function MainLayout({ children }: MainLayoutProps) {
               <Sun className="h-5 w-5" />
             )}
           </Button>
-        </div>
-        {children}
+        </motion.div>
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+        >
+          {children}
+        </motion.div>
       </main>
       <footer className={cn(
         "border-t py-6",
         theme === 'light' 
-          ? "bg-white/50 border-blue-100" 
-          : "bg-gray-800/50 border-gray-700"
+          ? "bg-white/50 border-blue-100 backdrop-blur-sm" 
+          : "bg-gray-800/30 border-gray-700 backdrop-blur-sm"
       )}>
         <div className="container flex flex-col items-center justify-between gap-4 md:flex-row">
           <p className={cn(

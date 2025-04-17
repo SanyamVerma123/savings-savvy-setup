@@ -23,10 +23,10 @@ type TransactionFormData = z.infer<typeof transactionSchema>;
 export function TransactionForm() {
   const { addTransaction } = useAppContext();
 
-  const [formData, setFormData] = useState<Partial<TransactionFormData>>({
+  const [formData, setFormData] = useState<TransactionFormData>({
     name: "",
-    amount: undefined,
-    category: "",
+    amount: 0,
+    category: "Other",
     date: new Date().toISOString().split('T')[0],
     type: "expense"
   });
@@ -37,7 +37,7 @@ export function TransactionForm() {
     const { name, value, type } = e.target;
     setFormData({
       ...formData,
-      [name]: type === 'number' ? (value ? parseFloat(value) : undefined) : value
+      [name]: type === 'number' ? (value ? parseFloat(value) : 0) : value
     });
     
     // Clear error for this field when user types
@@ -90,13 +90,13 @@ export function TransactionForm() {
     }
     
     // Add the transaction
-    addTransaction(formData as TransactionFormData);
+    addTransaction(formData);
     
     // Reset form
     setFormData({
       name: "",
-      amount: undefined,
-      category: "",
+      amount: 0,
+      category: "Other",
       date: new Date().toISOString().split('T')[0],
       type: "expense"
     });
@@ -125,7 +125,7 @@ export function TransactionForm() {
                 id="name"
                 name="name"
                 placeholder="Groceries, Salary, etc."
-                value={formData.name || ""}
+                value={formData.name}
                 onChange={handleChange}
                 className={`finance-input transition-all ${errors.name ? "border-red-500" : ""}`}
               />
@@ -167,14 +167,26 @@ export function TransactionForm() {
             
             <div className="space-y-2">
               <label htmlFor="category" className="text-sm font-medium">Category</label>
-              <Input
-                id="category"
-                name="category"
-                placeholder="Housing, Food, etc."
-                value={formData.category || ""}
-                onChange={handleChange}
-                className={`finance-input transition-all ${errors.category ? "border-red-500" : ""}`}
-              />
+              <Select
+                value={formData.category}
+                onValueChange={(value) => handleSelectChange("category", value)}
+              >
+                <SelectTrigger className={`finance-input transition-all ${errors.category ? "border-red-500" : ""}`}>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Income">Income</SelectItem>
+                  <SelectItem value="Housing">Housing</SelectItem>
+                  <SelectItem value="Food">Food</SelectItem>
+                  <SelectItem value="Transportation">Transportation</SelectItem>
+                  <SelectItem value="Utilities">Utilities</SelectItem>
+                  <SelectItem value="Healthcare">Healthcare</SelectItem>
+                  <SelectItem value="Entertainment">Entertainment</SelectItem>
+                  <SelectItem value="Education">Education</SelectItem>
+                  <SelectItem value="Shopping">Shopping</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
               {errors.category && <p className="text-xs text-red-500">{errors.category}</p>}
             </div>
             
@@ -184,7 +196,7 @@ export function TransactionForm() {
                 id="date"
                 name="date"
                 type="date"
-                value={formData.date || ""}
+                value={formData.date}
                 onChange={handleChange}
                 className={`finance-input transition-all ${errors.date ? "border-red-500" : ""}`}
               />
@@ -197,8 +209,8 @@ export function TransactionForm() {
                 variant="outline"
                 onClick={() => setFormData({
                   name: "",
-                  amount: undefined,
-                  category: "",
+                  amount: 0,
+                  category: "Other",
                   date: new Date().toISOString().split('T')[0],
                   type: "expense"
                 })}
