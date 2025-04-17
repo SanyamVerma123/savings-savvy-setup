@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -95,7 +96,13 @@
 
   /* Financial themed utilities */
   .card-gradient {
-    @apply bg-gradient-to-br from-white to-secondary/50 shadow-md;
+    @apply bg-gradient-to-br from-white to-secondary/50 shadow-md dark:from-gray-800 dark:to-gray-900/50 dark:shadow-lg dark:border-gray-700;
+    transition: all 0.3s ease;
+  }
+  
+  .card-gradient:hover {
+    @apply shadow-lg;
+    transform: translateY(-2px);
   }
 
   .income-card {
@@ -115,11 +122,11 @@
   }
 
   .finance-input {
-    @apply bg-white/80 focus:bg-white transition-colors duration-200;
+    @apply bg-white/80 focus:bg-white transition-colors duration-200 dark:bg-gray-800/80 dark:focus:bg-gray-800 dark:border-gray-700;
   }
   
   .progress-bar {
-    @apply rounded-full h-2 bg-secondary overflow-hidden;
+    @apply rounded-full h-2 bg-secondary overflow-hidden dark:bg-gray-700;
   }
 
   .progress-value {
@@ -129,4 +136,100 @@
   .total-card {
     @apply p-6 rounded-xl card-gradient flex flex-col;
   }
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Animation utilities */
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slideIn {
+  animation: slideIn 0.5s ease-out forwards;
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite;
+}
+
+.animate-bounce {
+  animation: bounce 1s infinite;
+}
+
+/* Custom button animations */
+.btn-hover-effect {
+  transition: all 0.3s ease;
+}
+
+.btn-hover-effect:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Custom input animations */
+.input-focus-effect {
+  transition: all 0.3s ease;
+}
+
+.input-focus-effect:focus {
+  transform: scale(1.01);
+}
+
+/* Staggered animation delay utilities */
+.delay-100 {
+  animation-delay: 100ms;
+}
+
+.delay-200 {
+  animation-delay: 200ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+.delay-400 {
+  animation-delay: 400ms;
+}
+
+.delay-500 {
+  animation-delay: 500ms;
 }

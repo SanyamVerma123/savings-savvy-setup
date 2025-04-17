@@ -7,113 +7,136 @@ import {
   Car, 
   Lightbulb,
   Film,
-  MoreHorizontal
+  MoreHorizontal,
+  CreditCard,
+  Briefcase,
+  BookOpen,
+  HeartPulse,
+  PiggyBank
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-
-interface Transaction {
-  id: string;
-  name: string;
-  category: string;
-  amount: number;
-  date: string;
-  type: "income" | "expense";
-  icon: React.ReactNode;
-}
-
-const transactions: Transaction[] = [
-  {
-    id: "tx1",
-    name: "Salary",
-    category: "Income",
-    amount: 5230,
-    date: "Jun 01, 2023",
-    type: "income",
-    icon: <DollarSign className="h-4 w-4" />
-  },
-  {
-    id: "tx2",
-    name: "Apartment Rent",
-    category: "Housing",
-    amount: 1200,
-    date: "Jun 03, 2023",
-    type: "expense",
-    icon: <Home className="h-4 w-4" />
-  },
-  {
-    id: "tx3",
-    name: "Grocery Store",
-    category: "Food",
-    amount: 156.32,
-    date: "Jun 05, 2023",
-    type: "expense",
-    icon: <Utensils className="h-4 w-4" />
-  },
-  {
-    id: "tx4",
-    name: "Uber Rides",
-    category: "Transportation",
-    amount: 57.89,
-    date: "Jun 07, 2023",
-    type: "expense",
-    icon: <Car className="h-4 w-4" />
-  },
-  {
-    id: "tx5",
-    name: "Netflix Subscription",
-    category: "Entertainment",
-    amount: 13.99,
-    date: "Jun 09, 2023",
-    type: "expense",
-    icon: <Film className="h-4 w-4" />
-  }
-];
-
 import { DollarSign } from "lucide-react";
+import { useAppContext } from "@/contexts/AppContext";
+import { motion } from "framer-motion";
+
+// Helper function to get icon for transaction category
+const getCategoryIcon = (category: string) => {
+  const categoryLower = category.toLowerCase();
+  
+  if (categoryLower.includes('salary') || categoryLower.includes('income')) {
+    return <Briefcase className="h-4 w-4" />;
+  } else if (categoryLower.includes('rent') || categoryLower.includes('house') || categoryLower.includes('home')) {
+    return <Home className="h-4 w-4" />;
+  } else if (categoryLower.includes('food') || categoryLower.includes('grocery') || categoryLower.includes('restaurant')) {
+    return <Utensils className="h-4 w-4" />;
+  } else if (categoryLower.includes('car') || categoryLower.includes('transport') || categoryLower.includes('gas')) {
+    return <Car className="h-4 w-4" />;
+  } else if (categoryLower.includes('stream') || categoryLower.includes('netflix') || categoryLower.includes('entertainment')) {
+    return <Film className="h-4 w-4" />;
+  } else if (categoryLower.includes('bill') || categoryLower.includes('utility')) {
+    return <Lightbulb className="h-4 w-4" />;
+  } else if (categoryLower.includes('health') || categoryLower.includes('medical')) {
+    return <HeartPulse className="h-4 w-4" />;
+  } else if (categoryLower.includes('shop') || categoryLower.includes('store')) {
+    return <ShoppingBag className="h-4 w-4" />;
+  } else if (categoryLower.includes('education') || categoryLower.includes('school')) {
+    return <BookOpen className="h-4 w-4" />;
+  } else if (categoryLower.includes('savings') || categoryLower.includes('invest')) {
+    return <PiggyBank className="h-4 w-4" />;
+  }
+  
+  // Default icon
+  return <CreditCard className="h-4 w-4" />;
+};
+
+// Format date function
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+};
 
 export function RecentTransactions() {
+  const { transactions } = useAppContext();
+  
+  // Get the 5 most recent transactions
+  const recentTransactions = [...transactions]
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, 5);
+
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 10 },
+    show: { opacity: 1, y: 0 }
+  };
+
   return (
     <Card className="card-gradient h-full">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-lg font-medium">Recent Transactions</CardTitle>
-        <Button variant="ghost" size="sm" asChild>
+        <Button variant="ghost" size="sm" asChild className="hover:scale-105 transition-transform">
           <Link to="/transactions">View all</Link>
         </Button>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {transactions.map((transaction) => (
-            <div key={transaction.id} className="flex items-center justify-between">
-              <div className="flex items-center">
-                <div
-                  className={`p-2 rounded-full mr-3 ${
-                    transaction.type === "income"
-                      ? "bg-finance-income/10 text-finance-income"
-                      : "bg-finance-expense/10 text-finance-expense"
-                  }`}
-                >
-                  {transaction.icon}
-                </div>
-                <div>
-                  <div className="font-medium text-sm">{transaction.name}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {transaction.category} • {transaction.date}
+        {recentTransactions.length > 0 ? (
+          <motion.div 
+            className="space-y-4"
+            variants={container}
+            initial="hidden"
+            animate="show"
+          >
+            {recentTransactions.map((transaction) => (
+              <motion.div 
+                key={transaction.id} 
+                className="flex items-center justify-between"
+                variants={item}
+              >
+                <div className="flex items-center">
+                  <div
+                    className={`p-2 rounded-full mr-3 ${
+                      transaction.type === "income"
+                        ? "bg-finance-income/10 text-finance-income"
+                        : "bg-finance-expense/10 text-finance-expense"
+                    }`}
+                  >
+                    {getCategoryIcon(transaction.category)}
+                  </div>
+                  <div>
+                    <div className="font-medium text-sm">{transaction.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {transaction.category} • {formatDate(transaction.date)}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div
-                className={`text-sm font-semibold ${
-                  transaction.type === "income"
-                    ? "text-finance-income"
-                    : "text-finance-expense"
-                }`}
-              >
-                {transaction.type === "income" ? "+" : "-"}${transaction.amount.toFixed(2)}
-              </div>
-            </div>
-          ))}
-        </div>
+                <div
+                  className={`text-sm font-semibold ${
+                    transaction.type === "income"
+                      ? "text-finance-income"
+                      : "text-finance-expense"
+                  }`}
+                >
+                  {transaction.type === "income" ? "+" : "-"}${transaction.amount.toFixed(2)}
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-40 text-center">
+            <DollarSign className="h-8 w-8 text-muted-foreground mb-2 opacity-50" />
+            <p className="text-muted-foreground">No transactions yet</p>
+            <p className="text-xs text-muted-foreground mt-1">Add your first transaction to see it here</p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
