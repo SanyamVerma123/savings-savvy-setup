@@ -4,9 +4,10 @@ import { useAI } from "@/contexts/AIContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Bot, Send, X, Loader2, BrainCircuit, AlertCircle } from "lucide-react";
+import { Bot, Send, X, Loader2, BrainCircuit, AlertCircle, Bell, Info } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Message {
   id: string;
@@ -22,6 +23,37 @@ export function AIAssistant() {
   const [tempApiKey, setTempApiKey] = useState("");
   const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
+
+  // Set up automatic financial insights on first load
+  useEffect(() => {
+    if (hasApiKey && messages.length === 0) {
+      const scheduleInsight = () => {
+        setTimeout(() => {
+          if (!isExpanded) {
+            toast(
+              <div className="flex items-start gap-2">
+                <BrainCircuit className="h-5 w-5 text-finance-primary mt-0.5" />
+                <div>
+                  <h3 className="font-medium mb-1">AI Financial Insight</h3>
+                  <p className="text-sm">Open the AI assistant for personalized financial advice</p>
+                </div>
+              </div>,
+              {
+                action: {
+                  label: "Open",
+                  onClick: () => setIsExpanded(true)
+                },
+                duration: 8000
+              }
+            );
+          }
+        }, 15000); // Show after 15 seconds
+      };
+      
+      scheduleInsight();
+    }
+  }, [hasApiKey, messages.length, isExpanded]);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -82,15 +114,60 @@ export function AIAssistant() {
     }
   };
 
+  // Get proactive financial advice
+  const getFinancialAdvice = async () => {
+    if (!hasApiKey) {
+      setShowApiKeyDialog(true);
+      return;
+    }
+
+    setIsExpanded(true);
+    
+    const questions = [
+      "Review my spending patterns and suggest areas where I could save money.",
+      "Do you see any budget categories where I'm consistently overspending?",
+      "Based on my current income and expenses, how am I doing financially?",
+      "Give me advice on how to better achieve my savings goals."
+    ];
+    
+    const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
+    
+    try {
+      const aiResponse = await askAI(randomQuestion);
+      
+      const aiMessage: Message = {
+        id: `ai-${Date.now()}`,
+        content: aiResponse,
+        sender: "ai"
+      };
+      
+      setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      toast.error("Failed to get AI advice. Please try again.");
+      console.error("AI advice error:", error);
+    }
+  };
+
   if (!isExpanded) {
     return (
-      <Button
-        onClick={() => setIsExpanded(true)}
-        className="fixed bottom-4 right-4 z-50 rounded-full p-3 shadow-lg hover:scale-105 transition-transform bg-finance-primary text-white"
-        aria-label="Open AI Assistant"
-      >
-        <BrainCircuit className="h-6 w-6" />
-      </Button>
+      <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 items-end">
+        <Button
+          onClick={getFinancialAdvice}
+          className="rounded-full p-3 shadow-lg hover:scale-105 transition-transform bg-amber-500 text-white"
+          aria-label="Get Financial Advice"
+          title="Get Financial Advice"
+        >
+          <Info className="h-6 w-6" />
+        </Button>
+        <Button
+          onClick={() => setIsExpanded(true)}
+          className="rounded-full p-3 shadow-lg hover:scale-105 transition-transform bg-finance-primary text-white"
+          aria-label="Open AI Assistant"
+          title="Open AI Assistant"
+        >
+          <BrainCircuit className="h-6 w-6" />
+        </Button>
+      </div>
     );
   }
 
@@ -122,6 +199,24 @@ export function AIAssistant() {
                 <p className="text-sm text-muted-foreground mt-2">
                   Ask me anything about your finances, budgeting advice, or saving recommendations.
                 </p>
+                <div className="flex gap-2 mt-4">
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={() => setInput("What areas am I overspending in?")}
+                    className="text-xs"
+                  >
+                    Where am I overspending?
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={() => setInput("How can I save more money?")}
+                    className="text-xs"
+                  >
+                    How can I save more?
+                  </Button>
+                </div>
               </div>
             ) : (
               messages.map((message) => (

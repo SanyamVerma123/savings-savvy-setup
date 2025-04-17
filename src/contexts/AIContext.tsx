@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState } from 'react';
 import { useAppContext } from './AppContext';
+import { toast } from 'sonner';
 
 interface AIContextType {
   isLoading: boolean;
@@ -21,9 +22,10 @@ export const useAI = () => {
 
 export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { transactions, budgetCategories, savingsGoals, deviceId } = useAppContext();
+  // Use the provided API key as the default, but still allow user to change it if needed
   const [apiKey, setApiKey] = useState<string>(() => {
     const storedKey = localStorage.getItem(`ai_api_key_${deviceId}`);
-    return storedKey || '';
+    return storedKey || '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';
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -54,6 +56,22 @@ export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
         totalExpenses: transactions
           .filter(tx => tx.type === 'expense')
           .reduce((sum, tx) => sum + tx.amount, 0),
+        // Add more contextual information for better AI assistance
+        budgetStatus: budgetCategories.map(cat => ({
+          category: cat.name,
+          status: (cat.spent / cat.allocated) * 100 > 90 ? 'critical' : 
+                 (cat.spent / cat.allocated) * 100 > 75 ? 'warning' : 'good',
+          percentSpent: (cat.spent / cat.allocated) * 100
+        })),
+        savingsProgress: savingsGoals.map(goal => ({
+          goal: goal.name,
+          progressPercent: (goal.current / goal.target) * 100,
+          remaining: goal.target - goal.current,
+          onTrack: new Date(goal.deadline) > new Date() && 
+                  (goal.current / goal.target) * 100 > 
+                  (new Date().getTime() - new Date(goal.deadline).getTime()) / 
+                  (new Date().getTime() - new Date(goal.deadline).getTime() + 7776000000) * 100
+        }))
       };
 
       const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -67,7 +85,15 @@ export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
           messages: [
             {
               role: "system",
-              content: "You are a helpful financial assistant that provides advice based on transaction history, budgets, and savings goals. Be concise, practical, and focus on helping users manage their finances better."
+              content: `You are a proactive financial assistant that provides personalized advice based on transaction history, budgets, and savings goals. 
+              
+              Be specific and practical, focusing on helping users manage their finances better. Look for patterns, potential issues, and opportunities to save money or improve financial health.
+              
+              You have access to the user's financial data, including transactions, budget categories, and savings goals. Use this information to provide targeted advice.
+              
+              When appropriate, suggest notifications the user might want to set up (like budget alerts, payment reminders, or savings milestones).
+              
+              If you identify concerning patterns (like overspending in certain categories, missed savings opportunities, or potential cashflow issues), highlight them clearly and suggest actionable solutions.`
             },
             {
               role: "user",
@@ -75,7 +101,7 @@ export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
             }
           ],
           temperature: 0.5,
-          max_tokens: 500,
+          max_tokens: 800,
         })
       });
 

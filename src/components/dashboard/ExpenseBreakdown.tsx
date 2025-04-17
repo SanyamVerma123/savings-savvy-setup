@@ -1,6 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Sample data - in a real app, this would come from your backend or state management
 const expenseData = [
@@ -29,8 +30,10 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 export function ExpenseBreakdown() {
+  const isMobile = useIsMobile();
+  
   return (
-    <Card className="card-gradient h-full">
+    <Card className="card-gradient h-full w-full">
       <CardHeader>
         <CardTitle className="text-lg font-medium">Expense Breakdown</CardTitle>
       </CardHeader>
@@ -43,8 +46,8 @@ export function ExpenseBreakdown() {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                innerRadius={60}
-                outerRadius={80}
+                innerRadius={isMobile ? 40 : 60}
+                outerRadius={isMobile ? 70 : 80}
                 paddingAngle={2}
                 dataKey="value"
               >
@@ -61,7 +64,7 @@ export function ExpenseBreakdown() {
               <Legend
                 layout="vertical"
                 verticalAlign="middle"
-                align="right"
+                align={isMobile ? "center" : "right"}
                 formatter={(value, entry, index) => (
                   <span className="text-sm">{value}</span>
                 )}

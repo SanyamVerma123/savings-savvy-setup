@@ -10,6 +10,7 @@ import {
   Legend,
   ResponsiveContainer
 } from "recharts";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Sample data - would come from your backend in a real app
 const monthlyData = [
@@ -77,8 +78,10 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export function IncomeExpenseChart() {
+  const isMobile = useIsMobile();
+  
   return (
-    <Card className="card-gradient h-full">
+    <Card className="card-gradient h-full w-full">
       <CardHeader>
         <CardTitle className="text-lg font-medium">Income vs Expenses</CardTitle>
       </CardHeader>
@@ -89,8 +92,8 @@ export function IncomeExpenseChart() {
               data={monthlyData}
               margin={{
                 top: 20,
-                right: 30,
-                left: 20,
+                right: isMobile ? 10 : 30,
+                left: isMobile ? 0 : 20,
                 bottom: 5
               }}
             >

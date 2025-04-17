@@ -16,6 +16,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { AIAssistant } from "@/components/ai/AIAssistant";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function Dashboard() {
   const { transactions, userData } = useAppContext();
@@ -25,6 +26,7 @@ export default function Dashboard() {
   });
   
   const [showWelcome, setShowWelcome] = useState(true);
+  const isMobile = useIsMobile();
   
   useEffect(() => {
     // Check if we should show the welcome message
@@ -131,12 +133,18 @@ export default function Dashboard() {
         </motion.div>
 
         <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
-          <IncomeExpenseChart />
-          <ExpenseBreakdown />
+          <div className="w-full">
+            <IncomeExpenseChart />
+          </div>
+          <div className="w-full">
+            <ExpenseBreakdown />
+          </div>
         </motion.div>
 
         <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
-          <BudgetProgress />
+          <div className="w-full">
+            <BudgetProgress />
+          </div>
           <div className="grid grid-cols-1 gap-6 w-full">
             <RecentTransactions />
             <SavingsGoals />
