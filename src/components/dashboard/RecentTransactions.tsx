@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   ShoppingBag, 
@@ -7,7 +8,6 @@ import {
   Car, 
   Lightbulb,
   Film,
-  MoreHorizontal,
   CreditCard,
   Briefcase,
   BookOpen,
@@ -19,6 +19,8 @@ import { Link } from "react-router-dom";
 import { DollarSign } from "lucide-react";
 import { useAppContext } from "@/contexts/AppContext";
 import { motion } from "framer-motion";
+import { EditableTransaction } from "@/components/transactions/EditableTransaction";
+import { toast } from "sonner";
 
 // Helper function to get icon for transaction category
 const getCategoryIcon = (category: string) => {
@@ -57,12 +59,32 @@ const formatDate = (dateString: string) => {
 };
 
 export function RecentTransactions() {
-  const { transactions } = useAppContext();
+  const { transactions, updateTransaction } = useAppContext();
+  const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
   
   // Get the 5 most recent transactions
   const recentTransactions = [...transactions]
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 5);
+
+  // Get unique categories from all transactions for dropdown
+  const uniqueCategories = Array.from(
+    new Set(transactions.map(tx => tx.category))
+  );
+
+  const handleDoubleClick = (id: string) => {
+    setEditingTransactionId(id);
+  };
+
+  const handleSaveEdit = (id: string, updatedData: Partial<typeof transactions[0]>) => {
+    updateTransaction(id, updatedData);
+    setEditingTransactionId(null);
+    toast.success("Transaction updated successfully");
+  };
+
+  const handleCancelEdit = () => {
+    setEditingTransactionId(null);
+  };
 
   const container = {
     hidden: { opacity: 0 },
@@ -80,7 +102,7 @@ export function RecentTransactions() {
   };
 
   return (
-    <Card className="card-gradient h-full">
+    <Card className="card-gradient h-full w-full">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-lg font-medium">Recent Transactions</CardTitle>
         <Button variant="ghost" size="sm" asChild className="hover:scale-105 transition-transform">
@@ -96,38 +118,49 @@ export function RecentTransactions() {
             animate="show"
           >
             {recentTransactions.map((transaction) => (
-              <motion.div 
-                key={transaction.id} 
-                className="flex items-center justify-between"
-                variants={item}
-              >
-                <div className="flex items-center">
-                  <div
-                    className={`p-2 rounded-full mr-3 ${
-                      transaction.type === "income"
-                        ? "bg-finance-income/10 text-finance-income"
-                        : "bg-finance-expense/10 text-finance-expense"
-                    }`}
+              <div key={transaction.id}>
+                {editingTransactionId === transaction.id ? (
+                  <EditableTransaction 
+                    transaction={transaction}
+                    onSave={handleSaveEdit}
+                    onCancel={handleCancelEdit}
+                    categories={uniqueCategories}
+                  />
+                ) : (
+                  <motion.div 
+                    className="flex items-center justify-between cursor-pointer hover:bg-secondary/30 p-2 rounded-md transition-colors"
+                    variants={item}
+                    onDoubleClick={() => handleDoubleClick(transaction.id)}
                   >
-                    {getCategoryIcon(transaction.category)}
-                  </div>
-                  <div>
-                    <div className="font-medium text-sm">{transaction.name}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {transaction.category} • {formatDate(transaction.date)}
+                    <div className="flex items-center">
+                      <div
+                        className={`p-2 rounded-full mr-3 ${
+                          transaction.type === "income"
+                            ? "bg-finance-income/10 text-finance-income"
+                            : "bg-finance-expense/10 text-finance-expense"
+                        }`}
+                      >
+                        {getCategoryIcon(transaction.category)}
+                      </div>
+                      <div>
+                        <div className="font-medium text-sm">{transaction.name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {transaction.category} • {formatDate(transaction.date)}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                <div
-                  className={`text-sm font-semibold ${
-                    transaction.type === "income"
-                      ? "text-finance-income"
-                      : "text-finance-expense"
-                  }`}
-                >
-                  {transaction.type === "income" ? "+" : "-"}${transaction.amount.toFixed(2)}
-                </div>
-              </motion.div>
+                    <div
+                      className={`text-sm font-semibold ${
+                        transaction.type === "income"
+                          ? "text-finance-income"
+                          : "text-finance-expense"
+                      }`}
+                    >
+                      {transaction.type === "income" ? "+" : "-"}${transaction.amount.toFixed(2)}
+                    </div>
+                  </motion.div>
+                )}
+              </div>
             ))}
           </motion.div>
         ) : (

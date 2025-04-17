@@ -9,12 +9,13 @@ import { RecentTransactions } from "@/components/dashboard/RecentTransactions";
 import { SavingsGoals } from "@/components/dashboard/SavingsGoals";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, ArrowUpRight, Info } from "lucide-react";
+import { Plus, Info } from "lucide-react";
 import { TransactionForm } from "@/components/transactions/TransactionForm";
 import { useAppContext } from "@/contexts/AppContext";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
+import { AIAssistant } from "@/components/ai/AIAssistant";
 
 export default function Dashboard() {
   const { transactions, userData } = useAppContext();
@@ -67,7 +68,7 @@ export default function Dashboard() {
   return (
     <MainLayout>
       <motion.div 
-        className="flex flex-col gap-6"
+        className="flex flex-col gap-6 w-full"
         variants={container}
         initial="hidden"
         animate="show"
@@ -100,9 +101,9 @@ export default function Dashboard() {
         {showWelcome && (
           <motion.div 
             variants={item} 
-            className="animate-slideIn"
+            className="animate-slideIn w-full"
           >
-            <Card className="bg-gradient-to-r from-blue-500 to-teal-400 text-white dark:from-blue-600 dark:to-teal-500">
+            <Card className="bg-gradient-to-r from-blue-500 to-teal-400 text-white dark:from-blue-600 dark:to-teal-500 w-full">
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">
                   <div>
@@ -125,24 +126,24 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        <motion.div variants={item}>
+        <motion.div variants={item} className="w-full">
           <OverviewCards />
         </motion.div>
 
-        <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
           <IncomeExpenseChart />
           <ExpenseBreakdown />
         </motion.div>
 
-        <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
           <BudgetProgress />
-          <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 gap-6 w-full">
             <RecentTransactions />
             <SavingsGoals />
           </div>
         </motion.div>
 
-        <motion.div variants={item} className="sm:hidden">
+        <motion.div variants={item} className="sm:hidden w-full">
           <Dialog>
             <DialogTrigger asChild>
               <Button className="w-full hover:scale-105 transition-transform">
@@ -159,6 +160,9 @@ export default function Dashboard() {
           </Dialog>
         </motion.div>
       </motion.div>
+      
+      {/* AI Assistant */}
+      <AIAssistant />
     </MainLayout>
   );
 }

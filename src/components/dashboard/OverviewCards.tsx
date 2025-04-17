@@ -34,8 +34,9 @@ function OverviewCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       whileHover={{ y: -5, transition: { duration: 0.2 } }}
+      className="w-full"
     >
-      <Card className={`${className} card-gradient overflow-hidden`}>
+      <Card className={`${className} card-gradient overflow-hidden w-full`}>
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-muted-foreground">{title}</p>
@@ -100,7 +101,7 @@ export function OverviewCards() {
   }, [transactions]);
 
   return (
-    <div className="stats-grid">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
       <OverviewCard
         title="Total Income"
         value={`$${totalIncome.toFixed(2)}`}

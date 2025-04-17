@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface UserData {
@@ -38,6 +37,7 @@ interface AppContextType {
   setUserData: (data: UserData | null) => void;
   transactions: TransactionType[];
   addTransaction: (transaction: Omit<TransactionType, "id">) => void;
+  updateTransaction: (id: string, updatedData: Partial<TransactionType>) => void;
   removeTransaction: (id: string) => void;
   savingsGoals: SavingsGoalType[];
   addSavingsGoal: (goal: Omit<SavingsGoalType, "id">) => void;
@@ -57,6 +57,7 @@ const defaultContext: AppContextType = {
   setUserData: () => {},
   transactions: [],
   addTransaction: () => {},
+  updateTransaction: () => {},
   removeTransaction: () => {},
   savingsGoals: [],
   addSavingsGoal: () => {},
@@ -84,7 +85,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [budgetCategories, setBudgetCategories] = useState<BudgetCategoryType[]>([]);
   const [deviceId, setDeviceId] = useState<string>('');
 
-  // Generate a unique device ID on first load
   useEffect(() => {
     const storedDeviceId = localStorage.getItem('deviceId');
     if (storedDeviceId) {
@@ -96,7 +96,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, []);
 
-  // Load data from localStorage on component mount
   useEffect(() => {
     const loadLocalData = () => {
       try {
@@ -129,14 +128,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [deviceId]);
 
-  // Theme setter that also updates localStorage
   const setTheme = (newTheme: 'light' | 'dark') => {
     setThemeState(newTheme);
     localStorage.setItem('theme', newTheme);
     document.documentElement.classList.toggle('dark', newTheme === 'dark');
   };
 
-  // User data setter that also updates localStorage
   const setUserData = (data: UserData | null) => {
     setUserDataState(data);
     if (data) {
@@ -146,7 +143,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  // Transaction management
   const addTransaction = (transaction: Omit<TransactionType, "id">) => {
     const newTransaction = { 
       ...transaction, 
@@ -157,13 +153,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem(`transactions_${deviceId}`, JSON.stringify(updatedTransactions));
   };
 
+  const updateTransaction = (id: string, updatedData: Partial<TransactionType>) => {
+    const updatedTransactions = transactions.map(tx => 
+      tx.id === id ? { ...tx, ...updatedData } : tx
+    );
+    setTransactions(updatedTransactions);
+    localStorage.setItem(`transactions_${deviceId}`, JSON.stringify(updatedTransactions));
+  };
+
   const removeTransaction = (id: string) => {
     const updatedTransactions = transactions.filter(tx => tx.id !== id);
     setTransactions(updatedTransactions);
     localStorage.setItem(`transactions_${deviceId}`, JSON.stringify(updatedTransactions));
   };
 
-  // Savings goal management
   const addSavingsGoal = (goal: Omit<SavingsGoalType, "id">) => {
     const newGoal = { 
       ...goal, 
@@ -188,7 +191,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem(`savingsGoals_${deviceId}`, JSON.stringify(updatedGoals));
   };
 
-  // Budget category management
   const addBudgetCategory = (category: Omit<BudgetCategoryType, "id">) => {
     const newCategory = { 
       ...category, 
@@ -221,6 +223,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setUserData,
       transactions,
       addTransaction,
+      updateTransaction,
       removeTransaction,
       savingsGoals,
       addSavingsGoal,
