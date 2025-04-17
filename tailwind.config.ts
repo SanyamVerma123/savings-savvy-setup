@@ -61,6 +61,29 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Financial theme colors
+				finance: {
+					primary: '#38B2AC', // Teal for growth
+					income: '#10B981', // Green for income
+					expense: '#EF4444', // Red for expenses
+					savings: '#3B82F6', // Blue for savings
+					neutral: '#94A3B8', // Slate for neutral elements
+					success: '#22C55E', // Green for success states
+					warning: '#F59E0B', // Amber for warnings
+					info: '#0EA5E9' // Sky blue for information
+				},
+				budget: {
+					housing: '#8B5CF6', // Purple for housing
+					food: '#F97316', // Orange for food
+					transport: '#06B6D4', // Cyan for transportation
+					utilities: '#EAB308', // Yellow for utilities
+					health: '#EC4899', // Pink for healthcare
+					entertainment: '#8B5CF6', // Purple for entertainment
+					shopping: '#F43F5E', // Rose for shopping
+					education: '#0EA5E9', // Sky for education
+					savings: '#10B981', // Emerald for savings
+					other: '#64748B' // Slate for other
 				}
 			},
 			borderRadius: {

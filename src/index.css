@@ -4,50 +4,43 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 204 40% 98%;
+    --foreground: 204 45% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 204 45% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 204 45% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 175 64% 45%;
+    --primary-foreground: 204 40% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 204 30% 95%;
+    --secondary-foreground: 204 45% 15%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 204 30% 95%;
+    --muted-foreground: 204 25% 35%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 175 64% 42%;
+    --accent-foreground: 204 40% 98%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 204 20% 88%;
+    --input: 204 20% 88%;
+    --ring: 175 60% 45%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
-
+    --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
+    --sidebar-primary: 175 64% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
@@ -97,5 +90,43 @@
 
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+  }
+
+  /* Financial themed utilities */
+  .card-gradient {
+    @apply bg-gradient-to-br from-white to-secondary/50 shadow-md;
+  }
+
+  .income-card {
+    @apply border-l-4 border-finance-income;
+  }
+
+  .expense-card {
+    @apply border-l-4 border-finance-expense;
+  }
+
+  .savings-card {
+    @apply border-l-4 border-finance-savings;
+  }
+
+  .stats-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4;
+  }
+
+  .finance-input {
+    @apply bg-white/80 focus:bg-white transition-colors duration-200;
+  }
+  
+  .progress-bar {
+    @apply rounded-full h-2 bg-secondary overflow-hidden;
+  }
+
+  .progress-value {
+    @apply h-full rounded-full transition-all duration-300 ease-in-out;
+  }
+
+  .total-card {
+    @apply p-6 rounded-xl card-gradient flex flex-col;
   }
 }
