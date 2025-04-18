@@ -10,6 +10,7 @@ import {
   Film 
 } from "lucide-react";
 import { useAppContext } from "@/contexts/AppContext";
+import { motion } from "framer-motion";
 
 interface BudgetCategoryProps {
   id: string;
@@ -40,12 +41,6 @@ const BudgetCategory = ({
   const percentage = Math.min((spent / budget) * 100, 100);
   const formattedPercentage = percentage.toFixed(0);
   
-  const getStatusColor = () => {
-    if (percentage >= 100) return "bg-finance-expense";
-    if (percentage >= 85) return "bg-finance-warning";
-    return `bg-[${color}]`;
-  };
-
   const handleTouchStart = () => {
     if (onLongPressStart) {
       onLongPressStart(id);
@@ -59,8 +54,10 @@ const BudgetCategory = ({
   };
 
   return (
-    <div 
+    <motion.div 
       className="mb-4"
+      whileHover={{ scale: 1.01 }}
+      transition={{ type: "spring", stiffness: 400, damping: 10 }}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       onMouseDown={handleTouchStart}
@@ -99,7 +96,7 @@ const BudgetCategory = ({
           ${(budget - spent).toFixed(2)} left
         </span>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -152,14 +149,19 @@ export function BudgetProgress({ onLongPressStart, onLongPressEnd }: BudgetProgr
 
   if (budgetCategories.length === 0) {
     return (
-      <div className="text-center py-6">
+      <div className="text-center py-6 animate-fade-in">
         <p className="text-muted-foreground">No budget categories yet</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <motion.div 
+      className="space-y-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ staggerChildren: 0.1 }}
+    >
       {budgetCategories.map((category, index) => (
         <BudgetCategory
           key={category.id}
@@ -173,6 +175,6 @@ export function BudgetProgress({ onLongPressStart, onLongPressEnd }: BudgetProgr
           onLongPressEnd={onLongPressEnd}
         />
       ))}
-    </div>
+    </motion.div>
   );
 }

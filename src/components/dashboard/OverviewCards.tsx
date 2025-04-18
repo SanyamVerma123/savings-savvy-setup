@@ -11,7 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useAppContext } from "@/contexts/AppContext";
 import { motion } from "framer-motion";
 import { useEffect, useState, useCallback } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -23,7 +23,9 @@ interface OverviewCardProps {
   changeType?: "increase" | "decrease";
   icon: React.ReactNode;
   className?: string;
-  onLongPress?: () => void;
+  dataId: string;
+  currentValue: number;
+  onLongPress: (id: string, value: number) => void;
 }
 
 function OverviewCard({
@@ -33,16 +35,18 @@ function OverviewCard({
   changeType = "increase",
   icon,
   className,
+  dataId,
+  currentValue,
   onLongPress
 }: OverviewCardProps) {
   const [pressTimer, setPressTimer] = useState<NodeJS.Timeout | null>(null);
   
   const handlePressStart = useCallback(() => {
     const timer = setTimeout(() => {
-      onLongPress?.();
+      onLongPress(dataId, currentValue);
     }, 500);
     setPressTimer(timer);
-  }, [onLongPress]);
+  }, [onLongPress, dataId, currentValue]);
   
   const handlePressEnd = useCallback(() => {
     if (pressTimer) {
@@ -108,12 +112,23 @@ function OverviewCard({
 }
 
 export function OverviewCards() {
-  const { transactions } = useAppContext();
+  const { transactions, updateTotalValues } = useAppContext();
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [netSavings, setNetSavings] = useState(0);
   const [editingCard, setEditingCard] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
+  
+  // Animation variants
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
 
   useEffect(() => {
     // Calculate totals from transactions
@@ -136,44 +151,83 @@ export function OverviewCards() {
   };
 
   const handleSave = () => {
-    // Here you would implement the actual saving logic
-    toast.success("Value updated successfully");
+    if (!editingCard) return;
+    
+    const newValue = parseFloat(editValue);
+    if (isNaN(newValue) || newValue < 0) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+    
+    if (updateTotalValues) {
+      updateTotalValues(editingCard, newValue);
+      
+      // Update local state for immediate UI feedback
+      if (editingCard === 'income') {
+        setTotalIncome(newValue);
+        setNetSavings(newValue - totalExpenses);
+      } else if (editingCard === 'expenses') {
+        setTotalExpenses(newValue);
+        setNetSavings(totalIncome - newValue);
+      } else if (editingCard === 'savings') {
+        setNetSavings(newValue);
+      }
+      
+      toast.success(`${editingCard.charAt(0).toUpperCase() + editingCard.slice(1)} updated successfully`);
+    } else {
+      toast.error("Update function not available");
+    }
+    
     setEditingCard(null);
   };
 
   return (
-    <>
+    <motion.div 
+      variants={container}
+      initial="hidden"
+      animate="show"
+      className="w-full"
+    >
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
         <OverviewCard
           title="Total Income"
           value={`$${totalIncome.toFixed(2)}`}
           icon={<DollarSign className="h-5 w-5" />}
           className="income-card"
-          onLongPress={() => handleEdit("income", totalIncome)}
+          dataId="income"
+          currentValue={totalIncome}
+          onLongPress={handleEdit}
         />
         <OverviewCard
           title="Total Expenses"
           value={`$${totalExpenses.toFixed(2)}`}
           icon={<Wallet className="h-5 w-5" />}
           className="expense-card"
-          onLongPress={() => handleEdit("expenses", totalExpenses)}
+          dataId="expenses"
+          currentValue={totalExpenses}
+          onLongPress={handleEdit}
         />
         <OverviewCard
           title="Net Savings"
           value={`$${netSavings.toFixed(2)}`}
           icon={<PiggyBank className="h-5 w-5" />}
           className="savings-card"
-          onLongPress={() => handleEdit("savings", netSavings)}
+          dataId="savings"
+          currentValue={netSavings}
+          onLongPress={handleEdit}
         />
       </div>
 
-      <Dialog open={!!editingCard} onOpenChange={() => setEditingCard(null)}>
-        <DialogContent>
+      <Dialog open={!!editingCard} onOpenChange={(open) => !open && setEditingCard(null)}>
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Edit className="h-4 w-4" />
               Edit {editingCard?.charAt(0).toUpperCase() + editingCard?.slice(1)}
             </DialogTitle>
+            <DialogDescription>
+              Update your financial information. Changes will be saved automatically.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 pt-4">
             <Input
@@ -181,16 +235,21 @@ export function OverviewCards() {
               value={editValue}
               onChange={(e) => setEditValue(e.target.value)}
               placeholder="Enter new value"
+              min="0"
+              step="0.01"
+              className="focus:ring-2 focus:ring-primary"
             />
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setEditingCard(null)}>
                 Cancel
               </Button>
-              <Button onClick={handleSave}>Save Changes</Button>
+              <Button onClick={handleSave} className="bg-finance-primary hover:bg-finance-primary/90">
+                Save Changes
+              </Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
-    </>
+    </motion.div>
   );
 }

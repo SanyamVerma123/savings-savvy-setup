@@ -1,9 +1,15 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 interface UserData {
   name: string;
   email: string;
   deviceId: string;
+  monthlyIncome?: number;
+  monthlyExpenses?: number;
+  savingsGoal?: number;
+  referralSource?: string;
 }
 
 interface TransactionType {
@@ -47,7 +53,10 @@ interface AppContextType {
   addBudgetCategory: (category: Omit<BudgetCategoryType, "id">) => void;
   updateBudgetCategory: (id: string, spent: number) => void;
   removeBudgetCategory: (id: string) => void;
+  updateTotalValues: (type: string, value: number) => void;
   deviceId: string;
+  hasCompletedOnboarding: boolean;
+  setHasCompletedOnboarding: (completed: boolean) => void;
 }
 
 const defaultContext: AppContextType = {
@@ -67,7 +76,10 @@ const defaultContext: AppContextType = {
   addBudgetCategory: () => {},
   updateBudgetCategory: () => {},
   removeBudgetCategory: () => {},
-  deviceId: ''
+  updateTotalValues: () => {},
+  deviceId: '',
+  hasCompletedOnboarding: false,
+  setHasCompletedOnboarding: () => {}
 };
 
 const AppContext = createContext<AppContextType>(defaultContext);
@@ -84,6 +96,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [savingsGoals, setSavingsGoals] = useState<SavingsGoalType[]>([]);
   const [budgetCategories, setBudgetCategories] = useState<BudgetCategoryType[]>([]);
   const [deviceId, setDeviceId] = useState<string>('');
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean>(false);
 
   useEffect(() => {
     const storedDeviceId = localStorage.getItem('deviceId');
@@ -94,6 +107,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.setItem('deviceId', newDeviceId);
       setDeviceId(newDeviceId);
     }
+    
+    const onboardingCompleted = localStorage.getItem('onboardingCompleted') === 'true';
+    setHasCompletedOnboarding(onboardingCompleted);
   }, []);
 
   useEffect(() => {
@@ -151,20 +167,79 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const updatedTransactions = [...transactions, newTransaction];
     setTransactions(updatedTransactions);
     localStorage.setItem(`transactions_${deviceId}`, JSON.stringify(updatedTransactions));
+    
+    // Update budget categories if this is an expense
+    if (transaction.type === 'expense') {
+      const category = budgetCategories.find(
+        cat => cat.name.toLowerCase() === transaction.category.toLowerCase()
+      );
+      
+      if (category) {
+        updateBudgetCategory(category.id, category.spent + transaction.amount);
+      }
+    }
   };
 
   const updateTransaction = (id: string, updatedData: Partial<TransactionType>) => {
+    const oldTransaction = transactions.find(tx => tx.id === id);
     const updatedTransactions = transactions.map(tx => 
       tx.id === id ? { ...tx, ...updatedData } : tx
     );
     setTransactions(updatedTransactions);
     localStorage.setItem(`transactions_${deviceId}`, JSON.stringify(updatedTransactions));
+    
+    // Update budget categories if necessary
+    if (oldTransaction && oldTransaction.type === 'expense') {
+      // If the expense amount changed, update the corresponding budget category
+      if (updatedData.amount && updatedData.amount !== oldTransaction.amount) {
+        const category = budgetCategories.find(
+          cat => cat.name.toLowerCase() === oldTransaction.category.toLowerCase()
+        );
+        
+        if (category) {
+          const amountDifference = updatedData.amount - oldTransaction.amount;
+          updateBudgetCategory(category.id, category.spent + amountDifference);
+        }
+      }
+      
+      // If the category changed, update both old and new categories
+      if (updatedData.category && updatedData.category !== oldTransaction.category) {
+        const oldCategory = budgetCategories.find(
+          cat => cat.name.toLowerCase() === oldTransaction.category.toLowerCase()
+        );
+        
+        const newCategory = budgetCategories.find(
+          cat => cat.name.toLowerCase() === updatedData.category?.toLowerCase()
+        );
+        
+        if (oldCategory) {
+          updateBudgetCategory(oldCategory.id, oldCategory.spent - oldTransaction.amount);
+        }
+        
+        if (newCategory) {
+          const amount = updatedData.amount || oldTransaction.amount;
+          updateBudgetCategory(newCategory.id, newCategory.spent + amount);
+        }
+      }
+    }
   };
 
   const removeTransaction = (id: string) => {
+    const transaction = transactions.find(tx => tx.id === id);
     const updatedTransactions = transactions.filter(tx => tx.id !== id);
     setTransactions(updatedTransactions);
     localStorage.setItem(`transactions_${deviceId}`, JSON.stringify(updatedTransactions));
+    
+    // Update budget category if this was an expense
+    if (transaction && transaction.type === 'expense') {
+      const category = budgetCategories.find(
+        cat => cat.name.toLowerCase() === transaction.category.toLowerCase()
+      );
+      
+      if (category) {
+        updateBudgetCategory(category.id, category.spent - transaction.amount);
+      }
+    }
   };
 
   const addSavingsGoal = (goal: Omit<SavingsGoalType, "id">) => {
@@ -175,6 +250,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const updatedGoals = [...savingsGoals, newGoal];
     setSavingsGoals(updatedGoals);
     localStorage.setItem(`savingsGoals_${deviceId}`, JSON.stringify(updatedGoals));
+    toast.success("Savings goal added successfully");
   };
 
   const updateSavingsGoal = (id: string, amount: number) => {
@@ -183,12 +259,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
     setSavingsGoals(updatedGoals);
     localStorage.setItem(`savingsGoals_${deviceId}`, JSON.stringify(updatedGoals));
+    toast.success("Savings goal updated successfully");
   };
 
   const removeSavingsGoal = (id: string) => {
     const updatedGoals = savingsGoals.filter(goal => goal.id !== id);
     setSavingsGoals(updatedGoals);
     localStorage.setItem(`savingsGoals_${deviceId}`, JSON.stringify(updatedGoals));
+    toast.success("Savings goal removed successfully");
   };
 
   const addBudgetCategory = (category: Omit<BudgetCategoryType, "id">) => {
@@ -199,6 +277,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const updatedCategories = [...budgetCategories, newCategory];
     setBudgetCategories(updatedCategories);
     localStorage.setItem(`budgetCategories_${deviceId}`, JSON.stringify(updatedCategories));
+    toast.success("Budget category added successfully");
   };
 
   const updateBudgetCategory = (id: string, spent: number) => {
@@ -213,6 +292,107 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const updatedCategories = budgetCategories.filter(cat => cat.id !== id);
     setBudgetCategories(updatedCategories);
     localStorage.setItem(`budgetCategories_${deviceId}`, JSON.stringify(updatedCategories));
+    toast.success("Budget category removed successfully");
+  };
+  
+  const updateTotalValues = (type: string, value: number) => {
+    if (type === 'income') {
+      // Add a mock income transaction
+      const date = new Date().toISOString().split('T')[0];
+      
+      // Remove previous balance adjustment transactions
+      const filteredTransactions = transactions.filter(
+        tx => !(tx.name === "Balance Adjustment" && tx.type === "income")
+      );
+      
+      // Calculate the current income total
+      const currentIncome = filteredTransactions
+        .filter(tx => tx.type === 'income')
+        .reduce((sum, tx) => sum + tx.amount, 0);
+      
+      // Add an adjustment transaction to match the desired total
+      if (value !== currentIncome) {
+        const adjustmentAmount = value - currentIncome;
+        
+        if (adjustmentAmount !== 0) {
+          const adjustmentTx = {
+            name: "Balance Adjustment",
+            category: "Income",
+            amount: Math.abs(adjustmentAmount),
+            date,
+            type: "income" as const,
+            id: `tx_adjustment_${Date.now()}`
+          };
+          
+          const newTransactions = [...filteredTransactions, adjustmentTx];
+          setTransactions(newTransactions);
+          localStorage.setItem(`transactions_${deviceId}`, JSON.stringify(newTransactions));
+        } else {
+          setTransactions(filteredTransactions);
+          localStorage.setItem(`transactions_${deviceId}`, JSON.stringify(filteredTransactions));
+        }
+      }
+      
+      // Update user data if available
+      if (userData) {
+        setUserData({
+          ...userData,
+          monthlyIncome: value
+        });
+      }
+    } else if (type === 'expenses') {
+      // Similar approach for expenses
+      const date = new Date().toISOString().split('T')[0];
+      
+      // Remove previous balance adjustment transactions
+      const filteredTransactions = transactions.filter(
+        tx => !(tx.name === "Balance Adjustment" && tx.type === "expense")
+      );
+      
+      // Calculate the current expense total
+      const currentExpenses = filteredTransactions
+        .filter(tx => tx.type === 'expense')
+        .reduce((sum, tx) => sum + tx.amount, 0);
+      
+      // Add an adjustment transaction to match the desired total
+      if (value !== currentExpenses) {
+        const adjustmentAmount = value - currentExpenses;
+        
+        if (adjustmentAmount !== 0) {
+          const adjustmentTx = {
+            name: "Balance Adjustment",
+            category: "Miscellaneous",
+            amount: Math.abs(adjustmentAmount),
+            date,
+            type: "expense" as const,
+            id: `tx_adjustment_${Date.now()}`
+          };
+          
+          const newTransactions = [...filteredTransactions, adjustmentTx];
+          setTransactions(newTransactions);
+          localStorage.setItem(`transactions_${deviceId}`, JSON.stringify(newTransactions));
+        } else {
+          setTransactions(filteredTransactions);
+          localStorage.setItem(`transactions_${deviceId}`, JSON.stringify(filteredTransactions));
+        }
+      }
+      
+      // Update user data if available
+      if (userData) {
+        setUserData({
+          ...userData,
+          monthlyExpenses: value
+        });
+      }
+    } else if (type === 'savings') {
+      // Just update user data for savings
+      if (userData) {
+        setUserData({
+          ...userData,
+          savingsGoal: value
+        });
+      }
+    }
   };
 
   return (
@@ -233,7 +413,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       addBudgetCategory,
       updateBudgetCategory,
       removeBudgetCategory,
-      deviceId
+      updateTotalValues,
+      deviceId,
+      hasCompletedOnboarding,
+      setHasCompletedOnboarding
     }}>
       {children}
     </AppContext.Provider>

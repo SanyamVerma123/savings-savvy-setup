@@ -17,7 +17,7 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { setUserData, deviceId } = useAppContext();
+  const { setUserData, deviceId, hasCompletedOnboarding } = useAppContext();
 
   // Check if already logged in
   useEffect(() => {
@@ -26,13 +26,19 @@ export default function Login() {
       try {
         const userData = JSON.parse(savedUser);
         setUserData({...userData, deviceId});
-        navigate('/');
+        
+        // Navigate to onboarding if not completed, otherwise to dashboard
+        if (!hasCompletedOnboarding) {
+          navigate('/onboarding');
+        } else {
+          navigate('/');
+        }
       } catch (error) {
         console.error("Failed to parse saved user data", error);
         localStorage.removeItem('user');
       }
     }
-  }, [navigate, setUserData, deviceId]);
+  }, [navigate, setUserData, deviceId, hasCompletedOnboarding]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +55,7 @@ export default function Login() {
 
       // For demo purposes, allow any login
       const userData = {
-        id: "user-1",
+        id: "user-" + Date.now(),
         name: email.split('@')[0], // Use name from email
         email: email,
         deviceId: deviceId
@@ -65,12 +71,18 @@ export default function Login() {
 
       toast.success("Login successful");
       setIsLoading(false);
-      navigate('/');
+      
+      // Navigate to onboarding if not completed, otherwise to dashboard
+      if (!hasCompletedOnboarding) {
+        navigate('/onboarding');
+      } else {
+        navigate('/');
+      }
     }, 1000);
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -79,9 +91,14 @@ export default function Login() {
       >
         <Card className="border-none shadow-xl">
           <CardHeader className="space-y-1 text-center bg-gradient-to-r from-blue-500 to-teal-400 text-white rounded-t-lg">
-            <div className="flex justify-center mb-2">
+            <motion.div 
+              className="flex justify-center mb-2"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
               <Lock className="h-12 w-12" />
-            </div>
+            </motion.div>
             <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
             <p className="text-sm text-white/80">Sign in to your Savings Savvy account</p>
           </CardHeader>
@@ -161,7 +178,11 @@ export default function Login() {
                 <span className="bg-card px-2 text-muted-foreground">Or</span>
               </div>
             </div>
-            <Button variant="outline" className="w-full" onClick={() => navigate('/')}>
+            <Button 
+              variant="outline" 
+              className="w-full hover:scale-105 transition-transform"
+              onClick={() => navigate('/onboarding')}
+            >
               Continue as Guest
             </Button>
           </CardFooter>
