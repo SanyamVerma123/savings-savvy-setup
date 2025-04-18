@@ -1,12 +1,10 @@
-
 import React from "react";
 import { Header } from "./Header";
 import { useAppContext } from "@/contexts/AppContext";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Settings } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -14,9 +12,7 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   const { theme, setTheme } = useAppContext();
-  const navigate = useNavigate();
   
-  // Toggle theme function
   const toggleTheme = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
   };
@@ -35,25 +31,7 @@ export function MainLayout({ children }: MainLayoutProps) {
     >
       <Header />
       <main className="flex-1 container py-6 md:py-8 px-3 md:px-6">
-        <div className="fixed bottom-6 left-6 z-50 flex flex-col gap-2">
-          <motion.div 
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Button 
-              onClick={() => navigate('/settings')}
-              variant="outline"
-              className={cn(
-                "rounded-full p-3 h-12 w-12 transition-all duration-300",
-                theme === 'light' 
-                  ? "bg-white text-primary shadow-lg hover:shadow-xl" 
-                  : "bg-gray-800 text-primary shadow-lg border-gray-700 hover:bg-gray-700"
-              )}
-            >
-              <Settings className="h-5 w-5" />
-              <span className="sr-only">Settings</span>
-            </Button>
-          </motion.div>
+        <div className="fixed bottom-6 left-6 z-50">
           <motion.div 
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}

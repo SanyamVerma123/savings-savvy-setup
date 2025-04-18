@@ -4,12 +4,17 @@ import {
   ArrowUpRight,
   DollarSign,
   PiggyBank,
-  Wallet
+  Wallet,
+  Edit
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAppContext } from "@/contexts/AppContext";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 interface OverviewCardProps {
   title: string;
@@ -18,6 +23,7 @@ interface OverviewCardProps {
   changeType?: "increase" | "decrease";
   icon: React.ReactNode;
   className?: string;
+  onLongPress?: () => void;
 }
 
 function OverviewCard({
@@ -26,8 +32,25 @@ function OverviewCard({
   change,
   changeType = "increase",
   icon,
-  className
+  className,
+  onLongPress
 }: OverviewCardProps) {
+  const [pressTimer, setPressTimer] = useState<NodeJS.Timeout | null>(null);
+  
+  const handlePressStart = useCallback(() => {
+    const timer = setTimeout(() => {
+      onLongPress?.();
+    }, 500);
+    setPressTimer(timer);
+  }, [onLongPress]);
+  
+  const handlePressEnd = useCallback(() => {
+    if (pressTimer) {
+      clearTimeout(pressTimer);
+      setPressTimer(null);
+    }
+  }, [pressTimer]);
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -35,6 +58,11 @@ function OverviewCard({
       transition={{ duration: 0.3 }}
       whileHover={{ y: -5, transition: { duration: 0.2 } }}
       className="w-full"
+      onTouchStart={handlePressStart}
+      onTouchEnd={handlePressEnd}
+      onMouseDown={handlePressStart}
+      onMouseUp={handlePressEnd}
+      onMouseLeave={handlePressEnd}
     >
       <Card className={`${className} card-gradient overflow-hidden w-full`}>
         <CardContent className="p-6">
@@ -84,7 +112,9 @@ export function OverviewCards() {
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [netSavings, setNetSavings] = useState(0);
-  
+  const [editingCard, setEditingCard] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState("");
+
   useEffect(() => {
     // Calculate totals from transactions
     const income = transactions
@@ -100,26 +130,67 @@ export function OverviewCards() {
     setNetSavings(income - expenses);
   }, [transactions]);
 
+  const handleEdit = (type: string, currentValue: number) => {
+    setEditingCard(type);
+    setEditValue(currentValue.toString());
+  };
+
+  const handleSave = () => {
+    // Here you would implement the actual saving logic
+    toast.success("Value updated successfully");
+    setEditingCard(null);
+  };
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-      <OverviewCard
-        title="Total Income"
-        value={`$${totalIncome.toFixed(2)}`}
-        icon={<DollarSign className="h-5 w-5" />}
-        className="income-card"
-      />
-      <OverviewCard
-        title="Total Expenses"
-        value={`$${totalExpenses.toFixed(2)}`}
-        icon={<Wallet className="h-5 w-5" />}
-        className="expense-card"
-      />
-      <OverviewCard
-        title="Net Savings"
-        value={`$${netSavings.toFixed(2)}`}
-        icon={<PiggyBank className="h-5 w-5" />}
-        className="savings-card"
-      />
-    </div>
+    <>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+        <OverviewCard
+          title="Total Income"
+          value={`$${totalIncome.toFixed(2)}`}
+          icon={<DollarSign className="h-5 w-5" />}
+          className="income-card"
+          onLongPress={() => handleEdit("income", totalIncome)}
+        />
+        <OverviewCard
+          title="Total Expenses"
+          value={`$${totalExpenses.toFixed(2)}`}
+          icon={<Wallet className="h-5 w-5" />}
+          className="expense-card"
+          onLongPress={() => handleEdit("expenses", totalExpenses)}
+        />
+        <OverviewCard
+          title="Net Savings"
+          value={`$${netSavings.toFixed(2)}`}
+          icon={<PiggyBank className="h-5 w-5" />}
+          className="savings-card"
+          onLongPress={() => handleEdit("savings", netSavings)}
+        />
+      </div>
+
+      <Dialog open={!!editingCard} onOpenChange={() => setEditingCard(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Edit className="h-4 w-4" />
+              Edit {editingCard?.charAt(0).toUpperCase() + editingCard?.slice(1)}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <Input
+              type="number"
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              placeholder="Enter new value"
+            />
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setEditingCard(null)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSave}>Save Changes</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

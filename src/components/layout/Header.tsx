@@ -1,20 +1,24 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Bell, Menu, User } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Bell, Menu, User, Settings, HelpCircle, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAppContext } from "@/contexts/AppContext";
 
 export function Header() {
   const isMobile = useIsMobile();
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const navigate = useNavigate();
+  const { userData } = useAppContext();
 
   return (
     <header className="w-full border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
@@ -71,21 +75,49 @@ export function Header() {
             <span className="sr-only">Notifications</span>
           </Button>
 
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={() => navigate('/settings')}
+            className="md:hidden"
+          >
+            <Settings className="h-5 w-5" />
+          </Button>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar className="h-9 w-9">
-                  <AvatarFallback className="bg-primary/10 text-primary">US</AvatarFallback>
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    {userData?.name ? userData.name[0].toUpperCase() : "U"}
+                  </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem onClick={() => navigate('/profile')}>
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Help</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/settings')}>
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Settings</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/help')}>
+                <HelpCircle className="mr-2 h-4 w-4" />
+                <span>Help</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                className="text-red-600 focus:text-red-600"
+                onClick={() => {
+                  localStorage.removeItem('user');
+                  navigate('/login');
+                }}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
