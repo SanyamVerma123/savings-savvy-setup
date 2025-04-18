@@ -11,7 +11,6 @@ import {
   Loader2, 
   BrainCircuit, 
   AlertCircle, 
-  Bell, 
   Info,
   Languages
 } from "lucide-react";
@@ -48,14 +47,22 @@ export function AIAssistant() {
     setApiKey,
     language,
     setLanguage,
-    availableLanguages 
+    availableLanguages,
+    endpointUrl,
+    setEndpointUrl,
+    modelName,
+    setModelName,
+    availableModels
   } = useAI();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [tempApiKey, setTempApiKey] = useState("");
+  const [tempEndpointUrl, setTempEndpointUrl] = useState(endpointUrl);
+  const [tempModelName, setTempModelName] = useState(modelName);
   const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
   const [showLanguageDialog, setShowLanguageDialog] = useState(false);
+  const [showSettingsDialog, setShowSettingsDialog] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
@@ -154,6 +161,19 @@ export function AIAssistant() {
     setShowLanguageDialog(false);
   };
 
+  const handleSettingsSave = () => {
+    if (tempEndpointUrl.trim()) {
+      setEndpointUrl(tempEndpointUrl.trim());
+    }
+    
+    if (tempModelName.trim()) {
+      setModelName(tempModelName.trim());
+    }
+    
+    setShowSettingsDialog(false);
+    toast.success("AI settings saved successfully!");
+  };
+
   // Get proactive financial advice
   const getFinancialAdvice = async () => {
     if (!hasApiKey) {
@@ -164,10 +184,10 @@ export function AIAssistant() {
     setIsExpanded(true);
     
     const questions = [
-      "Review my spending patterns and suggest areas where I could save money.",
-      "Do you see any budget categories where I'm consistently overspending?",
-      "Based on my current income and expenses, how am I doing financially?",
-      "Give me brief advice on how to better achieve my savings goals."
+      "Give me a quick financial tip based on my spending.",
+      "Any budget issues I should know about right now?",
+      "How am I doing with my savings goals?",
+      "What's one thing I could improve about my finances?"
     ];
     
     const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
@@ -191,6 +211,14 @@ export function AIAssistant() {
   if (!isExpanded) {
     return (
       <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 items-end">
+        <Button
+          onClick={() => setShowSettingsDialog(true)}
+          className="rounded-full p-3 shadow-lg hover:scale-105 transition-transform bg-blue-500 text-white"
+          aria-label="AI Settings"
+          title="AI Settings"
+        >
+          <Bot className="h-5 w-5" />
+        </Button>
         <Button
           onClick={() => setShowLanguageDialog(true)}
           className="rounded-full p-3 shadow-lg hover:scale-105 transition-transform bg-teal-500 text-white"
@@ -250,6 +278,68 @@ export function AIAssistant() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        <Dialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Bot className="h-5 w-5 text-finance-primary" />
+                AI Assistant Settings
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="py-4 space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">API Endpoint URL</label>
+                <Input
+                  value={tempEndpointUrl}
+                  onChange={(e) => setTempEndpointUrl(e.target.value)}
+                  placeholder="Enter API endpoint URL"
+                  className="w-full"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Default: https://api.groq.com/openai/v1/chat/completions
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Model Name</label>
+                <Select value={tempModelName} onValueChange={setTempModelName}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select AI model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableModels.map(model => (
+                      <SelectItem key={model.id} value={model.id}>
+                        {model.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">API Key</label>
+                <Input
+                  type="password"
+                  value={tempApiKey}
+                  onChange={(e) => setTempApiKey(e.target.value)}
+                  placeholder={hasApiKey ? "••••••••••••••••••••••" : "Enter your API key"}
+                  className="w-full"
+                />
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button type="button" onClick={handleSettingsSave}>
+                Save Settings
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
@@ -263,6 +353,15 @@ export function AIAssistant() {
             <CardTitle className="text-lg">Financial AI Assistant</CardTitle>
           </div>
           <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setShowSettingsDialog(true)}
+              title="AI Settings"
+            >
+              <Bot className="h-4 w-4" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"
@@ -291,24 +390,24 @@ export function AIAssistant() {
                 <BrainCircuit className="h-12 w-12 text-muted-foreground mb-2" />
                 <h3 className="font-medium">Your Financial AI Assistant</h3>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Ask me anything about your finances, budgeting advice, or saving recommendations.
+                  Ask me anything about your finances. I'll keep it short and helpful.
                 </p>
                 <div className="flex flex-wrap gap-2 mt-4 justify-center">
                   <Button 
                     size="sm" 
                     variant="outline" 
-                    onClick={() => setInput("What areas am I overspending in?")}
+                    onClick={() => setInput("Any budget issues?")}
                     className="text-xs"
                   >
-                    Where am I overspending?
+                    Any budget issues?
                   </Button>
                   <Button 
                     size="sm" 
                     variant="outline" 
-                    onClick={() => setInput("How can I save more money?")}
+                    onClick={() => setInput("Quick saving tip?")}
                     className="text-xs"
                   >
-                    How can I save more?
+                    Quick saving tip?
                   </Button>
                 </div>
               </div>
@@ -382,12 +481,12 @@ export function AIAssistant() {
           
           <div className="py-4">
             <p className="mb-4 text-sm">
-              To use the AI assistant, please enter your Groq API key. Your key is stored locally on your device and is never sent to our servers.
+              To use the AI assistant, please enter your API key. Your key is stored locally on your device and is never sent to our servers.
             </p>
             <Input
               value={tempApiKey}
               onChange={(e) => setTempApiKey(e.target.value)}
-              placeholder="Enter your Groq API key"
+              placeholder="Enter your API key"
               type="password"
               className="w-full"
             />
@@ -435,6 +534,68 @@ export function AIAssistant() {
             <DialogClose asChild>
               <Button variant="outline">Close</Button>
             </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Bot className="h-5 w-5 text-finance-primary" />
+              AI Assistant Settings
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="py-4 space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">API Endpoint URL</label>
+              <Input
+                value={tempEndpointUrl}
+                onChange={(e) => setTempEndpointUrl(e.target.value)}
+                placeholder="Enter API endpoint URL"
+                className="w-full"
+              />
+              <p className="text-xs text-muted-foreground">
+                Default: https://api.groq.com/openai/v1/chat/completions
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Model Name</label>
+              <Select value={tempModelName} onValueChange={setTempModelName}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select AI model" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableModels.map(model => (
+                    <SelectItem key={model.id} value={model.id}>
+                      {model.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">API Key</label>
+              <Input
+                type="password"
+                value={tempApiKey}
+                onChange={(e) => setTempApiKey(e.target.value)}
+                placeholder={hasApiKey ? "••••••••••••••••••••••" : "Enter your API key"}
+                className="w-full"
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button type="button" onClick={handleSettingsSave}>
+              Save Settings
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

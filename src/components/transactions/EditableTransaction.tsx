@@ -1,18 +1,15 @@
 
-import { useState, useEffect } from "react";
-import { useAppContext } from "@/contexts/AppContext";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { toast } from "sonner";
-import { Loader2, Save, Trash2 } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useAppContext } from '@/contexts/AppContext';
+import { CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { toast } from 'sonner';
 
 interface EditableTransactionProps {
   id: string;
@@ -21,186 +18,128 @@ interface EditableTransactionProps {
 }
 
 export function EditableTransaction({ id, onSave, onCancel }: EditableTransactionProps) {
-  const { transactions, updateTransaction, removeTransaction } = useAppContext();
-  const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    amount: "",
-    date: "",
-    category: "",
-    type: "",
-  });
+  const { transactions, updateTransaction } = useAppContext();
+  const [amount, setAmount] = useState<number>(0);
+  const [name, setName] = useState<string>('');
+  const [date, setDate] = useState<Date>(new Date());
+  const [category, setCategory] = useState<string>('');
+  const [type, setType] = useState<"income" | "expense">("expense");
 
   useEffect(() => {
-    const transaction = transactions.find(t => t.id === id);
+    const transaction = transactions.find(tx => tx.id === id);
     if (transaction) {
-      setFormData({
-        name: transaction.name,
-        amount: transaction.amount.toString(),
-        date: transaction.date,
-        category: transaction.category,
-        type: transaction.type,
-      });
+      setAmount(transaction.amount);
+      setName(transaction.name);
+      setDate(new Date(transaction.date));
+      setCategory(transaction.category);
+      setType(transaction.type);
     }
   }, [id, transactions]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      updateTransaction(id, {
-        ...formData,
-        amount: parseFloat(formData.amount),
-      });
-      
-      toast.success("Transaction updated successfully");
-      onSave();
-    } catch (error) {
-      console.error("Error updating transaction:", error);
-      toast.error("Failed to update transaction");
-    } finally {
-      setIsLoading(false);
-    }
+    
+    updateTransaction(id, {
+      amount,
+      name,
+      date: date.toISOString(),
+      category,
+      type
+    });
+    
+    toast.success("Transaction updated successfully");
+    onSave();
   };
 
-  const handleDelete = () => {
-    if (confirm("Are you sure you want to delete this transaction?")) {
-      removeTransaction(id);
-      toast.success("Transaction deleted successfully");
-      onCancel();
-    }
-  };
+  // Common transaction categories
+  const categories = [
+    "Housing", "Food", "Transportation", "Utilities", 
+    "Healthcare", "Entertainment", "Shopping", "Education",
+    "Work", "Income"
+  ];
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 pt-2">
-      <div className="grid gap-4">
-        <div className="grid gap-2">
-          <Label htmlFor="name">Transaction Name</Label>
-          <Input
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        
-        <div className="grid gap-2">
-          <Label htmlFor="amount">Amount</Label>
-          <Input
-            id="amount"
-            name="amount"
-            type="number"
-            step="0.01"
-            min="0"
-            value={formData.amount}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        
-        <div className="grid gap-2">
-          <Label htmlFor="date">Date</Label>
-          <Input
-            id="date"
-            name="date"
-            type="date"
-            value={formData.date}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        
-        <div className="grid gap-2">
-          <Label htmlFor="category">Category</Label>
-          <Select 
-            name="category"
-            value={formData.category} 
-            onValueChange={(value) => handleSelectChange("category", value)}
-          >
-            <SelectTrigger id="category">
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Income">Income</SelectItem>
-              <SelectItem value="Housing">Housing</SelectItem>
-              <SelectItem value="Food">Food</SelectItem>
-              <SelectItem value="Transportation">Transportation</SelectItem>
-              <SelectItem value="Entertainment">Entertainment</SelectItem>
-              <SelectItem value="Utilities">Utilities</SelectItem>
-              <SelectItem value="Healthcare">Healthcare</SelectItem>
-              <SelectItem value="Shopping">Shopping</SelectItem>
-              <SelectItem value="Education">Education</SelectItem>
-              <SelectItem value="Personal">Personal</SelectItem>
-              <SelectItem value="Other">Other</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        
-        <div className="grid gap-2">
-          <Label htmlFor="type">Type</Label>
-          <Select 
-            name="type"
-            value={formData.type} 
-            onValueChange={(value) => handleSelectChange("type", value)}
-          >
-            <SelectTrigger id="type">
-              <SelectValue placeholder="Select type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="income">Income</SelectItem>
-              <SelectItem value="expense">Expense</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="edit-name">Transaction Name</Label>
+        <Input
+          id="edit-name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
       </div>
       
-      <div className="flex justify-between">
-        <Button 
-          type="button" 
-          variant="destructive" 
-          onClick={handleDelete}
-          disabled={isLoading}
-        >
-          <Trash2 className="mr-2 h-4 w-4" />
-          Delete
+      <div className="space-y-2">
+        <Label htmlFor="edit-amount">Amount</Label>
+        <Input
+          id="edit-amount"
+          type="number"
+          step="0.01"
+          min="0"
+          value={amount}
+          onChange={(e) => setAmount(parseFloat(e.target.value))}
+          required
+        />
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="edit-type">Type</Label>
+        <Select value={type} onValueChange={(value: "income" | "expense") => setType(value)}>
+          <SelectTrigger id="edit-type">
+            <SelectValue placeholder="Select type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="income">Income</SelectItem>
+            <SelectItem value="expense">Expense</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="edit-category">Category</Label>
+        <Select value={category} onValueChange={setCategory}>
+          <SelectTrigger id="edit-category">
+            <SelectValue placeholder="Select category" />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map((cat) => (
+              <SelectItem key={cat} value={cat}>
+                {cat}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      
+      <div className="space-y-2">
+        <Label>Date</Label>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-full justify-start text-left font-normal"
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {date ? format(date, "PPP") : <span>Pick a date</span>}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0">
+            <Calendar
+              mode="single"
+              selected={date}
+              onSelect={(date) => date && setDate(date)}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
+      
+      <div className="flex justify-end gap-2">
+        <Button type="button" variant="outline" onClick={onCancel}>
+          Cancel
         </Button>
-        <div className="flex gap-2">
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={onCancel}
-            disabled={isLoading}
-          >
-            Cancel
-          </Button>
-          <Button 
-            type="submit" 
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="mr-2 h-4 w-4" />
-                Save Changes
-              </>
-            )}
-          </Button>
-        </div>
+        <Button type="submit">Save Changes</Button>
       </div>
     </form>
   );

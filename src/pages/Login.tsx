@@ -17,7 +17,7 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { setUserData } = useAppContext();
+  const { setUserData, deviceId } = useAppContext();
 
   // Check if already logged in
   useEffect(() => {
@@ -25,14 +25,14 @@ export default function Login() {
     if (savedUser) {
       try {
         const userData = JSON.parse(savedUser);
-        setUserData(userData);
+        setUserData({...userData, deviceId});
         navigate('/');
       } catch (error) {
         console.error("Failed to parse saved user data", error);
         localStorage.removeItem('user');
       }
     }
-  }, [navigate, setUserData]);
+  }, [navigate, setUserData, deviceId]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,6 +52,7 @@ export default function Login() {
         id: "user-1",
         name: email.split('@')[0], // Use name from email
         email: email,
+        deviceId: deviceId
       };
 
       // Save to state

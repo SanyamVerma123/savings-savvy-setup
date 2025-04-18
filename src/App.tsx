@@ -20,6 +20,23 @@ import { ThemeProvider } from "@/components/theme/ThemeProvider";
 
 const queryClient = new QueryClient();
 
+// Protected route component
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem('user');
+    setIsLoggedIn(!!savedUser);
+  }, []);
+
+  // Show loading state while checking auth status
+  if (isLoggedIn === null) {
+    return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
+  }
+  
+  return isLoggedIn ? <>{children}</> : <Navigate to="/login" replace />;
+};
+
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
 

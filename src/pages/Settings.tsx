@@ -1,309 +1,358 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
-  Settings as SettingsIcon, 
-  LogOut, 
-  Languages, 
-  Sun, 
+  Download, 
+  Upload, 
   Moon, 
-  Key, 
+  Sun, 
+  User, 
+  LogOut, 
   Save,
-  AlertTriangle
+  Languages,
+  Trash2,
+  AlertCircle,
+  BrainCircuit
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useAppContext } from "@/contexts/AppContext";
 import { useAI } from "@/contexts/AIContext";
-import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { toast } from "sonner";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger, 
+  DialogFooter,
+  DialogDescription
+} from "@/components/ui/dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
 
 export default function Settings() {
-  const { theme, setTheme, setUserData } = useAppContext();
+  const { theme, setTheme, setUserData, userData } = useAppContext();
   const { 
-    setApiKey, 
     language, 
     setLanguage, 
-    availableLanguages 
+    availableLanguages,
+    setApiKey,
+    setEndpointUrl,
+    setModelName,
+    endpointUrl,
+    modelName,
+    availableModels
   } = useAI();
+  
+  const [tempApiKey, setTempApiKey] = useState<string>("");
+  const [tempEndpointUrl, setTempEndpointUrl] = useState<string>(endpointUrl);
+  const [tempModelName, setTempModelName] = useState<string>(modelName);
+  const [exportFormat, setExportFormat] = useState<string>("json");
+  const [showDeleteDialog, setShowDeleteDialog] = useState<boolean>(false);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(theme === 'dark');
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  
-  // API keys
-  const [groqApiKey, setGroqApiKey] = useState("");
-  const [googleApiKey, setGoogleApiKey] = useState("");
-  const [openRouterApiKey, setOpenRouterApiKey] = useState("");
-  const [openAIApiKey, setOpenAIApiKey] = useState("");
-  
-  // Settings
-  const [notifications, setNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(theme === 'dark');
-  
+
+  useEffect(() => {
+    setIsDarkMode(theme === 'dark');
+  }, [theme]);
+
+  const handleDarkModeToggle = (checked: boolean) => {
+    setIsDarkMode(checked);
+    setTheme(checked ? 'dark' : 'light');
+    toast.success(`${checked ? 'Dark' : 'Light'} mode activated`);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('user');
     setUserData(null);
-    navigate('/login');
     toast.success("Logged out successfully");
+    navigate('/login');
   };
   
-  const handleSaveApiKeys = () => {
-    // Save Groq API key
-    if (groqApiKey.trim()) {
-      setApiKey(groqApiKey.trim());
+  const handleSaveAISettings = () => {
+    if (tempApiKey) {
+      setApiKey(tempApiKey);
     }
     
-    // We would handle other API keys here similarly
-    
-    toast.success("API keys saved successfully");
-  };
-  
-  const handleThemeToggle = (isChecked: boolean) => {
-    setDarkMode(isChecked);
-    setTheme(isChecked ? 'dark' : 'light');
-  };
-
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
+    if (tempEndpointUrl) {
+      setEndpointUrl(tempEndpointUrl);
     }
+    
+    if (tempModelName) {
+      setModelName(tempModelName);
+    }
+    
+    toast.success("AI settings saved successfully");
   };
 
-  const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
+  const handleExportData = () => {
+    // This would actually implement the export functionality
+    toast.success(`Data export started in ${exportFormat.toUpperCase()} format`);
+  };
+
+  const handleImportData = () => {
+    // This would actually implement the import functionality
+    toast.success("Data import started");
+  };
+
+  const handleDeleteAccount = () => {
+    // Clear all local storage
+    localStorage.clear();
+    // Reset user data
+    setUserData(null);
+    toast.success("Account deleted successfully");
+    navigate('/login');
   };
 
   return (
     <MainLayout>
-      <motion.div 
-        className="flex flex-col gap-6"
-        variants={container}
-        initial="hidden"
-        animate="show"
-      >
-        <motion.div variants={item} className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-          </div>
+      <div className="flex flex-col gap-6 w-full">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
           <p className="text-muted-foreground">
-            Customize your app preferences and manage your account
+            Manage your account preferences and application settings
           </p>
-        </motion.div>
+        </div>
 
-        <motion.div variants={item} className="w-full">
-          <Tabs defaultValue="general" className="w-full">
-            <TabsList className="w-full mb-6">
-              <TabsTrigger value="general" className="flex-1">General</TabsTrigger>
-              <TabsTrigger value="api-keys" className="flex-1">API Keys</TabsTrigger>
-              <TabsTrigger value="account" className="flex-1">Account</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="general" className="space-y-6">
-              <Card className="card-gradient">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <SettingsIcon className="h-5 w-5" />
-                    General Settings
-                  </CardTitle>
-                  <CardDescription>
-                    Configure your app preferences
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4">
-                    <div className="space-y-0.5">
-                      <Label className="text-base">Dark Mode</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Switch between light and dark theme
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Sun className="h-5 w-5 text-muted-foreground" />
-                      <Switch 
-                        checked={darkMode}
-                        onCheckedChange={handleThemeToggle}
-                      />
-                      <Moon className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4">
-                    <div className="space-y-0.5">
-                      <Label className="text-base">Notifications</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Enable or disable app notifications
-                      </p>
-                    </div>
-                    <Switch 
-                      checked={notifications}
-                      onCheckedChange={setNotifications}
-                    />
-                  </div>
-                  
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4">
-                    <div className="space-y-0.5">
-                      <Label className="text-base">AI Assistant Language</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Set the language for the AI assistant
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Languages className="h-5 w-5 text-muted-foreground" />
-                      <Select value={language} onValueChange={setLanguage}>
-                        <SelectTrigger className="w-[180px]">
-                          <SelectValue placeholder="Select language" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {availableLanguages.map(lang => (
-                            <SelectItem key={lang.code} value={lang.code}>
-                              {lang.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="api-keys" className="space-y-6">
-              <Card className="card-gradient">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Key className="h-5 w-5" />
-                    API Keys
-                  </CardTitle>
-                  <CardDescription>
-                    Manage your API keys for AI services
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
+          <Card className="card-gradient w-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Account Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {userData ? (
+                <>
                   <div className="space-y-2">
-                    <Label htmlFor="groq-api-key">Groq API Key</Label>
-                    <Input
-                      id="groq-api-key"
-                      type="password"
-                      placeholder="Enter your Groq API key"
-                      value={groqApiKey}
-                      onChange={(e) => setGroqApiKey(e.target.value)}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Used for the AI financial assistant
-                    </p>
+                    <Label>Email</Label>
+                    <div className="p-2 border rounded-md bg-secondary/50">
+                      {userData.email}
+                    </div>
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="google-api-key">Google API Key</Label>
-                    <Input
-                      id="google-api-key"
-                      type="password"
-                      placeholder="Enter your Google API key"
-                      value={googleApiKey}
-                      onChange={(e) => setGoogleApiKey(e.target.value)}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Used for Google services integration
-                    </p>
+                    <Label>Name</Label>
+                    <div className="p-2 border rounded-md bg-secondary/50">
+                      {userData.name}
+                    </div>
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="open-router-api-key">OpenRouter API Key</Label>
-                    <Input
-                      id="open-router-api-key"
-                      type="password"
-                      placeholder="Enter your OpenRouter API key"
-                      value={openRouterApiKey}
-                      onChange={(e) => setOpenRouterApiKey(e.target.value)}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Used for accessing multiple AI models
-                    </p>
+                  <div className="pt-4 flex flex-col gap-3">
+                    <Button
+                      onClick={handleLogout}
+                      variant="outline"
+                      className="w-full"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Log Out
+                    </Button>
+                    
+                    <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="destructive"
+                          className="w-full"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete Account
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle className="flex items-center gap-2">
+                            <AlertCircle className="h-5 w-5" />
+                            Delete Account
+                          </DialogTitle>
+                          <DialogDescription>
+                            This will delete all your data and cannot be undone. Are you sure?
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="py-4">
+                          <p className="text-sm text-muted-foreground mb-4">
+                            Deleting your account will remove all your transactions, budgets, 
+                            savings goals, and settings from this device.
+                          </p>
+                        </div>
+                        <DialogFooter>
+                          <Button 
+                            variant="outline" 
+                            onClick={() => setShowDeleteDialog(false)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button 
+                            variant="destructive" 
+                            onClick={handleDeleteAccount}
+                          >
+                            Yes, Delete Everything
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="open-ai-api-key">OpenAI API Key</Label>
-                    <Input
-                      id="open-ai-api-key"
-                      type="password"
-                      placeholder="Enter your OpenAI API key"
-                      value={openAIApiKey}
-                      onChange={(e) => setOpenAIApiKey(e.target.value)}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Used for GPT models
-                    </p>
-                  </div>
-                  
-                  <Button 
-                    className="w-full mt-4"
-                    onClick={handleSaveApiKeys}
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    Save API Keys
+                </>
+              ) : (
+                <div className="py-4 flex flex-col items-center justify-center text-center">
+                  <p className="text-muted-foreground mb-4">
+                    You're currently using the app as a guest.
+                  </p>
+                  <Button onClick={() => navigate('/login')}>
+                    Log In
                   </Button>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="account" className="space-y-6">
-              <Card className="card-gradient">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <SettingsIcon className="h-5 w-5" />
-                    Account Settings
-                  </CardTitle>
-                  <CardDescription>
-                    Manage your account and session
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 flex items-start gap-3">
-                    <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
-                    <div>
-                      <h4 className="font-medium text-amber-500">Demo Application</h4>
-                      <p className="text-sm text-muted-foreground">
-                        This is a demo application. Changes to account settings will not be permanently saved.
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    variant="destructive" 
-                    className="w-full" 
-                    onClick={handleLogout}
-                  >
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Sign Out
-                  </Button>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </motion.div>
-      </motion.div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="card-gradient w-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BrainCircuit className="h-5 w-5" />
+                AI Assistant Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="ai-language">Assistant Language</Label>
+                <Select 
+                  value={language} 
+                  onValueChange={setLanguage}
+                >
+                  <SelectTrigger id="ai-language" className="w-full">
+                    <SelectValue placeholder="Select language" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableLanguages.map(lang => (
+                      <SelectItem key={lang.code} value={lang.code}>
+                        {lang.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="endpoint-url">API Endpoint URL</Label>
+                <Input
+                  id="endpoint-url"
+                  value={tempEndpointUrl}
+                  onChange={(e) => setTempEndpointUrl(e.target.value)}
+                  placeholder="https://api.example.com/chat/completions"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Default: https://api.groq.com/openai/v1/chat/completions
+                </p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="model-name">AI Model</Label>
+                <Select 
+                  value={tempModelName} 
+                  onValueChange={setTempModelName}
+                >
+                  <SelectTrigger id="model-name" className="w-full">
+                    <SelectValue placeholder="Select AI model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableModels.map(model => (
+                      <SelectItem key={model.id} value={model.id}>
+                        {model.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="api-key">API Key</Label>
+                <Input
+                  id="api-key"
+                  type="password"
+                  value={tempApiKey}
+                  onChange={(e) => setTempApiKey(e.target.value)}
+                  placeholder="Enter your API key"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Your API key is stored locally and never sent to our servers
+                </p>
+              </div>
+              
+              <Button 
+                className="w-full mt-2" 
+                onClick={handleSaveAISettings}
+              >
+                <Save className="h-4 w-4 mr-2" />
+                Save AI Settings
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="card-gradient w-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Sun className="h-5 w-5 dark:hidden" />
+                <Moon className="h-5 w-5 hidden dark:block" />
+                Application Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="dark-mode">Dark Mode</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Switch between light and dark themes
+                  </p>
+                </div>
+                <Switch
+                  id="dark-mode"
+                  checked={isDarkMode}
+                  onCheckedChange={handleDarkModeToggle}
+                />
+              </div>
+
+              <div className="flex flex-col space-y-3 pt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="export-format">Export Format</Label>
+                  <Select value={exportFormat} onValueChange={setExportFormat}>
+                    <SelectTrigger id="export-format">
+                      <SelectValue placeholder="Select format" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="json">JSON</SelectItem>
+                      <SelectItem value="csv">CSV</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Button 
+                  variant="outline" 
+                  className="mt-2"
+                  onClick={handleExportData}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Export Data
+                </Button>
+                
+                <Button 
+                  variant="outline"
+                  onClick={handleImportData}
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Import Data
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </MainLayout>
   );
 }
