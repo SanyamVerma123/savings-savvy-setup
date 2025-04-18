@@ -9,16 +9,34 @@ import {
   Heart, 
   Film 
 } from "lucide-react";
+import { useAppContext } from "@/contexts/AppContext";
 
 interface BudgetCategoryProps {
+  id: string;
   name: string;
   spent: number;
   budget: number;
   icon: React.ReactNode;
   color: string;
+  onLongPressStart?: (id: string) => void;
+  onLongPressEnd?: () => void;
 }
 
-const BudgetCategory = ({ name, spent, budget, icon, color }: BudgetCategoryProps) => {
+interface BudgetProgressProps {
+  onLongPressStart?: (id: string) => void;
+  onLongPressEnd?: () => void;
+}
+
+const BudgetCategory = ({ 
+  id,
+  name, 
+  spent, 
+  budget, 
+  icon, 
+  color, 
+  onLongPressStart,
+  onLongPressEnd
+}: BudgetCategoryProps) => {
   const percentage = Math.min((spent / budget) * 100, 100);
   const formattedPercentage = percentage.toFixed(0);
   
@@ -28,8 +46,27 @@ const BudgetCategory = ({ name, spent, budget, icon, color }: BudgetCategoryProp
     return `bg-[${color}]`;
   };
 
+  const handleTouchStart = () => {
+    if (onLongPressStart) {
+      onLongPressStart(id);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (onLongPressEnd) {
+      onLongPressEnd();
+    }
+  };
+
   return (
-    <div className="mb-4">
+    <div 
+      className="mb-4"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onMouseDown={handleTouchStart}
+      onMouseUp={handleTouchEnd}
+      onMouseLeave={handleTouchEnd}
+    >
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center">
           <div 
@@ -50,7 +87,7 @@ const BudgetCategory = ({ name, spent, budget, icon, color }: BudgetCategoryProp
           className="progress-value" 
           style={{ 
             width: `${formattedPercentage}%`, 
-            backgroundColor: color
+            backgroundColor: color 
           }}
         ></div>
       </div>
@@ -59,86 +96,83 @@ const BudgetCategory = ({ name, spent, budget, icon, color }: BudgetCategoryProp
           {formattedPercentage}% spent
         </span>
         <span className="text-xs text-muted-foreground">
-          ${budget - spent} left
+          ${(budget - spent).toFixed(2)} left
         </span>
       </div>
     </div>
   );
 };
 
-export function BudgetProgress() {
-  // Sample data - in a real app this would come from your state/backend
-  const categories = [
-    {
-      name: "Housing",
-      spent: 1200,
-      budget: 1200,
-      icon: <Home className="h-4 w-4" />,
-      color: "#8B5CF6"
-    },
-    {
-      name: "Food",
-      spent: 580,
-      budget: 650,
-      icon: <Utensils className="h-4 w-4" />,
-      color: "#F97316"
-    },
-    {
-      name: "Transportation",
-      spent: 390,
-      budget: 450,
-      icon: <Car className="h-4 w-4" />,
-      color: "#06B6D4"
-    },
-    {
-      name: "Utilities",
-      spent: 280,
-      budget: 300,
-      icon: <Lightbulb className="h-4 w-4" />,
-      color: "#EAB308"
-    },
-    {
-      name: "Healthcare",
-      spent: 140,
-      budget: 250,
-      icon: <Heart className="h-4 w-4" />,
-      color: "#EC4899"
-    },
-    {
-      name: "Entertainment",
-      spent: 310,
-      budget: 350,
-      icon: <Film className="h-4 w-4" />,
-      color: "#A855F7"
-    },
-    {
-      name: "Shopping",
-      spent: 480,
-      budget: 400,
-      icon: <ShoppingBag className="h-4 w-4" />,
-      color: "#F43F5E"
-    }
-  ];
+export function BudgetProgress({ onLongPressStart, onLongPressEnd }: BudgetProgressProps) {
+  const { budgetCategories } = useAppContext();
+
+  // Icon mapping for categories
+  const getCategoryIcon = (name: string) => {
+    const lowerName = name.toLowerCase();
+    if (lowerName.includes('home') || lowerName.includes('rent') || lowerName.includes('mortgage')) 
+      return <Home className="h-4 w-4" />;
+    if (lowerName.includes('food') || lowerName.includes('grocery') || lowerName.includes('restaurant')) 
+      return <Utensils className="h-4 w-4" />;
+    if (lowerName.includes('car') || lowerName.includes('transport') || lowerName.includes('gas')) 
+      return <Car className="h-4 w-4" />;
+    if (lowerName.includes('util') || lowerName.includes('electric') || lowerName.includes('water')) 
+      return <Lightbulb className="h-4 w-4" />;
+    if (lowerName.includes('health') || lowerName.includes('medical') || lowerName.includes('fitness')) 
+      return <Heart className="h-4 w-4" />;
+    if (lowerName.includes('entertainment') || lowerName.includes('movie') || lowerName.includes('fun')) 
+      return <Film className="h-4 w-4" />;
+    
+    // Default
+    return <ShoppingBag className="h-4 w-4" />;
+  };
+
+  // Color mapping for categories
+  const getCategoryColor = (name: string, index: number) => {
+    const colors = [
+      "#8B5CF6", // Purple
+      "#F97316", // Orange
+      "#06B6D4", // Cyan
+      "#EAB308", // Yellow
+      "#EC4899", // Pink
+      "#A855F7", // Purple-pink
+      "#F43F5E"  // Red-pink
+    ];
+    
+    const lowerName = name.toLowerCase();
+    if (lowerName.includes('home') || lowerName.includes('rent')) return "#8B5CF6";
+    if (lowerName.includes('food') || lowerName.includes('grocery')) return "#F97316";
+    if (lowerName.includes('transport')) return "#06B6D4";
+    if (lowerName.includes('util')) return "#EAB308";
+    if (lowerName.includes('health')) return "#EC4899";
+    if (lowerName.includes('entertainment')) return "#A855F7";
+    
+    // Default - cycle through colors
+    return colors[index % colors.length];
+  };
+
+  if (budgetCategories.length === 0) {
+    return (
+      <div className="text-center py-6">
+        <p className="text-muted-foreground">No budget categories yet</p>
+      </div>
+    );
+  }
 
   return (
-    <Card className="card-gradient h-full">
-      <CardHeader>
-        <CardTitle className="text-lg font-medium">Budget Progress</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {categories.map((category) => (
-            <BudgetCategory
-              key={category.name}
-              name={category.name}
-              spent={category.spent}
-              budget={category.budget}
-              icon={category.icon}
-              color={category.color}
-            />
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+    <div className="space-y-4">
+      {budgetCategories.map((category, index) => (
+        <BudgetCategory
+          key={category.id}
+          id={category.id}
+          name={category.name}
+          spent={category.spent}
+          budget={category.allocated}
+          icon={getCategoryIcon(category.name)}
+          color={getCategoryColor(category.name, index)}
+          onLongPressStart={onLongPressStart}
+          onLongPressEnd={onLongPressEnd}
+        />
+      ))}
+    </div>
   );
 }

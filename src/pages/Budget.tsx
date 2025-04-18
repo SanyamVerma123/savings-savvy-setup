@@ -1,6 +1,7 @@
+
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BudgetProgress } from "@/components/dashboard/BudgetProgress";
@@ -201,11 +202,7 @@ export default function Budget() {
                       </Button>
                     </div>
                   ) : (
-                    <div 
-                      onTouchStart={() => {}} 
-                      onTouchEnd={() => {}}
-                      className="w-full"
-                    >
+                    <div className="w-full">
                       <BudgetProgress 
                         onLongPressStart={handleLongPressStart} 
                         onLongPressEnd={handleLongPressEnd}
@@ -260,7 +257,7 @@ export default function Budget() {
                           </div>
                         </SelectTrigger>
                         <SelectContent>
-                          {budgetCategories.map(category => (
+                          {budgetCategories.map((category) => (
                             <SelectItem key={category.id} value={category.id}>
                               {category.name} (${category.allocated})
                             </SelectItem>
