@@ -1,287 +1,399 @@
 
 import { MainLayout } from "@/components/layout/MainLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  SearchIcon,
+  HelpCircle,
   FileText,
-  DollarSign,
-  Wallet,
+  MessageSquare,
+  MailIcon,
+  BookOpen,
+  Video,
+  Receipt,
   PiggyBank,
+  DollarSign,
+  BarChart,
+  CreditCard,
   Settings,
-  User,
-  BrainCircuit,
-  LifeBuoy,
-  Star,
-  Mail,
-  Phone,
-  Github
+  Wallet,
+  Users,
+  Zap
 } from "lucide-react";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 export default function Help() {
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  // Common animation properties
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
+  
+  // FAQ items
+  const faqItems = [
+    {
+      question: "How do I add a new transaction?",
+      answer: "You can add a new transaction from the Dashboard or Transactions page by clicking the 'Add Transaction' button. Fill in the transaction details including name, amount, category, date, and type (income or expense)."
+    },
+    {
+      question: "How do I create a budget category?",
+      answer: "Navigate to the Budget page and click on 'Add Category'. Enter a name for your category, the allocated amount, and select a color. Your new budget category will appear in the budget breakdown."
+    },
+    {
+      question: "Can I edit my income or expense totals?",
+      answer: "Yes! On the Dashboard, press and hold (for about 4-5 seconds) on any of the overview cards (Income, Expenses, Savings). This will open an edit dialog where you can adjust the values."
+    },
+    {
+      question: "How do I create a savings goal?",
+      answer: "Visit the Savings page and click 'New Goal'. Enter your goal details including name, target amount, current savings, contribution frequency, and target date. Your new goal will appear in your savings dashboard."
+    },
+    {
+      question: "How can I track my spending by category?",
+      answer: "Your spending by category is automatically visualized in the Expense Breakdown chart on the Dashboard. As you add transactions, the chart will update to reflect your spending patterns."
+    },
+    {
+      question: "Can I edit or delete a transaction?",
+      answer: "Yes, on the Transactions page, find the transaction you want to modify. Click the three dots menu on the right side, then select 'Edit' or 'Delete' as needed."
+    },
+    {
+      question: "How do I update my profile information?",
+      answer: "Go to the Profile page from the sidebar menu. There you can update your personal details including name, email, and monthly income/expense goals."
+    },
+    {
+      question: "Is my data secure and private?",
+      answer: "Yes, your financial data is stored locally on your device and is not shared with any third parties. We use secure storage mechanisms to protect your information."
+    },
+    {
+      question: "Can I export my financial data?",
+      answer: "This feature is coming soon! We're working on implementing data export functionality so you can download your transaction history and financial reports."
+    },
+    {
+      question: "How do I get help if I have more questions?",
+      answer: "You can use the AI Assistant by clicking the AI button at the bottom right of any page. Our AI can answer questions, provide guidance, and help you use the app effectively."
+    }
+  ];
+  
+  // Filter FAQ items based on search
+  const filteredFaqItems = searchQuery
+    ? faqItems.filter(item => 
+        item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.answer.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : faqItems;
+
+  // Help categories
+  const helpCategories = [
+    { 
+      title: "Getting Started", 
+      icon: <BookOpen className="h-5 w-5" />,
+      topics: ["App Overview", "First Steps", "Setting Up Your Profile"]
+    },
+    { 
+      title: "Transactions", 
+      icon: <Receipt className="h-5 w-5" />,
+      topics: ["Adding Transactions", "Editing Transactions", "Categorizing Expenses"]
+    },
+    { 
+      title: "Budgeting", 
+      icon: <Wallet className="h-5 w-5" />,
+      topics: ["Creating a Budget", "Budget Categories", "Budget Tracking"]
+    },
+    { 
+      title: "Savings", 
+      icon: <PiggyBank className="h-5 w-5" />,
+      topics: ["Setting Goals", "Goal Progress", "Automatic Saving"]
+    },
+    { 
+      title: "Reports", 
+      icon: <BarChart className="h-5 w-5" />,
+      topics: ["Understanding Charts", "Income vs Expenses", "Spending Analysis"]
+    },
+    { 
+      title: "AI Features", 
+      icon: <Zap className="h-5 w-5" />,
+      topics: ["AI Assistant", "Financial Insights", "Custom Guidance"]
+    }
+  ];
+
   return (
     <MainLayout>
-      <div className="flex flex-col gap-6">
-        <div className="flex flex-col gap-2">
+      <motion.div 
+        variants={container}
+        initial="hidden"
+        animate="show"
+        className="max-w-5xl mx-auto"
+      >
+        <motion.div variants={item} className="flex flex-col gap-2 mb-6">
           <h1 className="text-3xl font-bold tracking-tight">Help & Support</h1>
           <p className="text-muted-foreground">
-            Learn how to use Savings Savvy and get help when you need it
+            Find answers to common questions and learn how to use all features
           </p>
-        </div>
-
-        <Tabs defaultValue="guide" className="w-full">
-          <TabsList className="w-full sm:w-auto">
-            <TabsTrigger value="guide">User Guide</TabsTrigger>
-            <TabsTrigger value="faq">FAQs</TabsTrigger>
-            <TabsTrigger value="contact">Contact</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="guide" className="mt-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card className="md:col-span-3 w-full card-gradient">
+        </motion.div>
+        
+        <motion.div variants={item} className="relative mb-8">
+          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-5 w-5" />
+          <Input
+            placeholder="Search for help topics..."
+            className="pl-10 py-6 text-base"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </motion.div>
+        
+        <Tabs defaultValue="faq" className="w-full">
+          <motion.div variants={item}>
+            <TabsList className="w-full justify-start mb-6">
+              <TabsTrigger value="faq" className="px-6">FAQ</TabsTrigger>
+              <TabsTrigger value="topics" className="px-6">Help Topics</TabsTrigger>
+              <TabsTrigger value="tutorials" className="px-6">Tutorials</TabsTrigger>
+              <TabsTrigger value="contact" className="px-6">Contact Us</TabsTrigger>
+            </TabsList>
+          </motion.div>
+          
+          <TabsContent value="faq" className="mt-0">
+            <motion.div variants={item}>
+              <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="h-5 w-5" />
-                    User Manual
+                  <CardTitle className="flex items-center">
+                    <HelpCircle className="mr-2 h-5 w-5" />
+                    Frequently Asked Questions
                   </CardTitle>
+                  <CardDescription>
+                    Quick answers to the most common questions about Savings Savvy
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-6">
-                    <section>
-                      <h3 className="text-lg font-semibold mb-3">Getting Started</h3>
-                      <p className="mb-3">
-                        Welcome to Savings Savvy! This user manual will help you make the most of your
-                        personal finance management app. Here's how to navigate the different sections:
+                  {filteredFaqItems.length === 0 ? (
+                    <div className="text-center py-10">
+                      <HelpCircle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                      <h3 className="text-lg font-medium mb-2">No results found</h3>
+                      <p className="text-muted-foreground">
+                        Try adjusting your search terms or browse the categories below
                       </p>
-                      <ul className="space-y-2 list-disc pl-6 text-muted-foreground">
-                        <li>
-                          <strong>Dashboard</strong>: Your financial overview with income, expenses, 
-                          budget progress, and savings goals.
-                        </li>
-                        <li>
-                          <strong>Transactions</strong>: Add and manage your income and expenses.
-                        </li>
-                        <li>
-                          <strong>Budget</strong>: Set and monitor spending limits for different categories.
-                        </li>
-                        <li>
-                          <strong>Savings</strong>: Create and track goals for your future purchases.
-                        </li>
+                    </div>
+                  ) : (
+                    <Accordion type="single" collapsible className="w-full">
+                      {filteredFaqItems.map((item, index) => (
+                        <AccordionItem key={index} value={`item-${index}`}>
+                          <AccordionTrigger className="text-left font-medium">
+                            {item.question}
+                          </AccordionTrigger>
+                          <AccordionContent className="text-muted-foreground">
+                            {item.answer}
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))}
+                    </Accordion>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+          </TabsContent>
+          
+          <TabsContent value="topics" className="mt-0">
+            <motion.div variants={item}>
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {helpCategories.map((category, index) => (
+                  <Card key={index} className="hover:shadow-lg transition-shadow h-full">
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <div className="mr-3 p-2 rounded-full bg-primary/10 text-primary">
+                          {category.icon}
+                        </div>
+                        {category.title}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="space-y-2">
+                        {category.topics.map((topic, idx) => (
+                          <li key={idx} className="flex items-center text-sm">
+                            <div className="h-1.5 w-1.5 rounded-full bg-primary mr-2"></div>
+                            <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                              {topic}
+                            </a>
+                          </li>
+                        ))}
                       </ul>
-                    </section>
-
-                    <section>
-                      <h3 className="text-lg font-semibold mb-3">Dashboard Features</h3>
-                      <Accordion type="single" collapsible>
-                        <AccordionItem value="dashboard-overview">
-                          <AccordionTrigger>Overview Cards</AccordionTrigger>
-                          <AccordionContent>
-                            <p className="mb-2">
-                              The overview cards provide a quick glance at your financial health, including:
-                            </p>
-                            <ul className="space-y-1 list-disc pl-6 text-muted-foreground">
-                              <li>Total income for the current period</li>
-                              <li>Total expenses and percentage of income</li>
-                              <li>Your savings amount and percentage of income</li>
-                              <li>The current balance across all accounts</li>
-                            </ul>
-                            <p className="mt-2">
-                              <strong>Tip:</strong> Double-tap or long-press on these cards to edit your financial data directly.
-                            </p>
-                          </AccordionContent>
-                        </AccordionItem>
-
-                        <AccordionItem value="transactions">
-                          <AccordionTrigger>Recent Transactions</AccordionTrigger>
-                          <AccordionContent>
-                            <p className="mb-2">
-                              View your most recent financial activities, with color-coding for income and expenses.
-                            </p>
-                            <p>
-                              <strong>Tip:</strong> Double-tap on any transaction to edit details like amount, category, or date.
-                            </p>
-                          </AccordionContent>
-                        </AccordionItem>
-
-                        <AccordionItem value="budget-progress">
-                          <AccordionTrigger>Budget Progress</AccordionTrigger>
-                          <AccordionContent>
-                            <p className="mb-2">
-                              See how your spending compares to your budget across different categories.
-                            </p>
-                            <p>
-                              <strong>Tip:</strong> Long-press on budget items to quickly adjust your budget allocations.
-                            </p>
-                          </AccordionContent>
-                        </AccordionItem>
-
-                        <AccordionItem value="savings-goals">
-                          <AccordionTrigger>Savings Goals</AccordionTrigger>
-                          <AccordionContent>
-                            <p className="mb-2">
-                              Track progress toward your financial goals like vacations, new car, or home down payment.
-                            </p>
-                            <p>
-                              <strong>Tip:</strong> If you don't have any goals yet, you'll see a button to easily add your first one.
-                            </p>
-                          </AccordionContent>
-                        </AccordionItem>
-                      </Accordion>
-                    </section>
-
-                    <section>
-                      <h3 className="text-lg font-semibold mb-3">AI Financial Assistant</h3>
-                      <p className="mb-3">
-                        Savings Savvy includes an AI assistant to help manage your finances:
-                      </p>
-                      <ul className="space-y-2 list-disc pl-6 text-muted-foreground">
-                        <li>
-                          <strong>Getting advice</strong>: Ask questions about your spending, budgets, or saving strategies.
-                        </li>
-                        <li>
-                          <strong>Changing language</strong>: Use the language selector to get responses in your preferred language.
-                        </li>
-                        <li>
-                          <strong>Customizing the AI</strong>: In Settings, you can provide your own API endpoint, model, and key.
-                        </li>
-                      </ul>
-                      <p className="mt-2">
-                        <strong>Note:</strong> The AI can only access data that's already in your Savings Savvy account.
-                      </p>
-                    </section>
-
-                    <section>
-                      <h3 className="text-lg font-semibold mb-3">Mobile Tips</h3>
-                      <p className="mb-2">
-                        Savings Savvy is fully optimized for mobile use:
-                      </p>
-                      <ul className="space-y-2 list-disc pl-6 text-muted-foreground">
-                        <li>Double-tap on items to edit them directly</li>
-                        <li>Long-press (tap and hold for 2 seconds) to see additional options</li>
-                        <li>Use the mobile-friendly filters on the Transactions page</li>
-                        <li>The AI assistant adapts to your screen size automatically</li>
-                      </ul>
-                    </section>
+                      <Button variant="ghost" size="sm" className="mt-4 w-full justify-start">
+                        <FileText className="mr-2 h-4 w-4" />
+                        View all topics
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </motion.div>
+          </TabsContent>
+          
+          <TabsContent value="tutorials" className="mt-0">
+            <motion.div variants={item} className="grid gap-6 md:grid-cols-2">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardContent className="p-0">
+                  <div className="h-40 bg-muted flex items-center justify-center">
+                    <Video className="h-12 w-12 text-muted-foreground" />
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-lg font-medium mb-2">Getting Started with Savings Savvy</h3>
+                    <p className="text-muted-foreground text-sm mb-4">
+                      Learn how to set up your account, add your first transaction, and create budgets
+                    </p>
+                    <div className="flex items-center text-xs text-muted-foreground">
+                      <span className="mr-4">5:32 mins</span>
+                      <span>Beginner</span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="faq" className="mt-6">
-            <Card className="w-full card-gradient">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <LifeBuoy className="h-5 w-5" />
-                  Frequently Asked Questions
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Accordion type="single" collapsible className="w-full">
-                  <AccordionItem value="faq-1">
-                    <AccordionTrigger>Is my financial data secure?</AccordionTrigger>
-                    <AccordionContent>
-                      Yes. Savings Savvy stores all your data locally on your device. We don't send or store your financial information on any servers. All data is kept in your browser's localStorage, so it's only accessible from your device.
-                    </AccordionContent>
-                  </AccordionItem>
-                  
-                  <AccordionItem value="faq-2">
-                    <AccordionTrigger>Can I export my data?</AccordionTrigger>
-                    <AccordionContent>
-                      Yes, you can export your transaction history, budget plans, and savings goals. Go to the relevant page (Transactions, Budget, or Savings) and look for the "Export" button. This will download your data as a CSV or JSON file.
-                    </AccordionContent>
-                  </AccordionItem>
-                  
-                  <AccordionItem value="faq-3">
-                    <AccordionTrigger>How do I edit a transaction?</AccordionTrigger>
-                    <AccordionContent>
-                      Double-tap on any transaction in the transactions list or recent transactions widget to open the edit dialog. From there, you can modify any details of the transaction.
-                    </AccordionContent>
-                  </AccordionItem>
-                  
-                  <AccordionItem value="faq-4">
-                    <AccordionTrigger>Can I change the AI assistant's language?</AccordionTrigger>
-                    <AccordionContent>
-                      Yes, click the language icon (globe) in the AI assistant panel to select from a variety of languages. The AI will respond in your chosen language for all future conversations.
-                    </AccordionContent>
-                  </AccordionItem>
-                  
-                  <AccordionItem value="faq-5">
-                    <AccordionTrigger>Is an internet connection required?</AccordionTrigger>
-                    <AccordionContent>
-                      Savings Savvy works offline for most features, as your data is stored locally. However, the AI assistant requires an internet connection to process your questions and provide answers.
-                    </AccordionContent>
-                  </AccordionItem>
-                  
-                  <AccordionItem value="faq-6">
-                    <AccordionTrigger>How do I set up my own AI model?</AccordionTrigger>
-                    <AccordionContent>
-                      In Settings, you can configure your own AI endpoint, model name, and API key. This allows you to use various AI services like OpenAI, Groq, Anthropic, or any other compatible API.
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="contact" className="mt-6">
-            <Card className="w-full card-gradient">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Mail className="h-5 w-5" />
-                  Contact Support
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <p>
-                    If you're experiencing issues or have questions that aren't covered in our user guide
-                    or FAQs, please reach out to our support team:
-                  </p>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="flex items-center gap-3 mb-3">
-                          <Mail className="h-5 w-5 text-finance-primary" />
-                          <h3 className="font-medium">Email Support</h3>
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-2">
-                          For general inquiries and support requests:
-                        </p>
-                        <p className="font-medium">support@savingssavvy.example</p>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="flex items-center gap-3 mb-3">
-                          <Github className="h-5 w-5 text-finance-primary" />
-                          <h3 className="font-medium">GitHub</h3>
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-2">
-                          For bugs and feature requests:
-                        </p>
-                        <p className="font-medium">github.com/savingssavvy/app</p>
-                      </CardContent>
-                    </Card>
+              
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardContent className="p-0">
+                  <div className="h-40 bg-muted flex items-center justify-center">
+                    <Video className="h-12 w-12 text-muted-foreground" />
                   </div>
-                  
-                  <p className="text-sm text-muted-foreground mt-4">
-                    Our support team is available Monday through Friday, 9 AM to 5 PM Eastern Time.
-                    We typically respond to all inquiries within 24-48 hours.
+                  <div className="p-6">
+                    <h3 className="text-lg font-medium mb-2">Creating and Managing Savings Goals</h3>
+                    <p className="text-muted-foreground text-sm mb-4">
+                      How to set up savings goals, track progress, and adjust contributions
+                    </p>
+                    <div className="flex items-center text-xs text-muted-foreground">
+                      <span className="mr-4">4:18 mins</span>
+                      <span>Intermediate</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardContent className="p-0">
+                  <div className="h-40 bg-muted flex items-center justify-center">
+                    <Video className="h-12 w-12 text-muted-foreground" />
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-lg font-medium mb-2">Effective Budgeting Strategies</h3>
+                    <p className="text-muted-foreground text-sm mb-4">
+                      Learn different budgeting methods and how to implement them with our app
+                    </p>
+                    <div className="flex items-center text-xs text-muted-foreground">
+                      <span className="mr-4">7:45 mins</span>
+                      <span>Advanced</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardContent className="p-0">
+                  <div className="h-40 bg-muted flex items-center justify-center">
+                    <Video className="h-12 w-12 text-muted-foreground" />
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-lg font-medium mb-2">Using the AI Assistant</h3>
+                    <p className="text-muted-foreground text-sm mb-4">
+                      How to leverage AI for financial insights, automation, and personalized advice
+                    </p>
+                    <div className="flex items-center text-xs text-muted-foreground">
+                      <span className="mr-4">6:12 mins</span>
+                      <span>Intermediate</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </TabsContent>
+          
+          <TabsContent value="contact" className="mt-0">
+            <motion.div variants={item} className="grid gap-6 md:grid-cols-3">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardContent className="p-6 flex flex-col items-center text-center">
+                  <div className="p-3 rounded-full bg-primary/10 text-primary mb-4">
+                    <MessageSquare className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-lg font-medium mb-2">Chat Support</h3>
+                  <p className="text-muted-foreground text-sm mb-4">
+                    Chat with our AI assistant for immediate help with your questions
                   </p>
-                </div>
-              </CardContent>
-            </Card>
+                  <Button className="w-full mt-auto">
+                    Open AI Chat
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardContent className="p-6 flex flex-col items-center text-center">
+                  <div className="p-3 rounded-full bg-primary/10 text-primary mb-4">
+                    <MailIcon className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-lg font-medium mb-2">Email Support</h3>
+                  <p className="text-muted-foreground text-sm mb-4">
+                    Send us an email and we'll get back to you within 24 hours
+                  </p>
+                  <Button variant="outline" className="w-full mt-auto">
+                    support@savingssavvy.com
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardContent className="p-6 flex flex-col items-center text-center">
+                  <div className="p-3 rounded-full bg-primary/10 text-primary mb-4">
+                    <Users className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-lg font-medium mb-2">Community</h3>
+                  <p className="text-muted-foreground text-sm mb-4">
+                    Join our community forum to get advice from other users
+                  </p>
+                  <Button variant="outline" className="w-full mt-auto">
+                    Visit Forum
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
           </TabsContent>
         </Tabs>
-      </div>
+        
+        <motion.div variants={item} className="mt-12">
+          <div className="bg-muted rounded-lg p-6 flex flex-col md:flex-row items-center justify-between">
+            <div className="mb-4 md:mb-0 text-center md:text-left">
+              <h3 className="text-xl font-medium mb-2">Still need help?</h3>
+              <p className="text-muted-foreground max-w-md">
+                Our AI assistant is available 24/7 to answer your questions and provide personalized guidance.
+              </p>
+            </div>
+            <Button size="lg" className="px-8">
+              <Zap className="mr-2 h-5 w-5" />
+              Ask AI Assistant
+            </Button>
+          </div>
+        </motion.div>
+      </motion.div>
     </MainLayout>
   );
 }

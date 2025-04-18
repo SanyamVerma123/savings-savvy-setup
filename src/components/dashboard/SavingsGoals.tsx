@@ -4,8 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Plane, Car, Home, GraduationCap, Plus, AlertCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAppContext } from "@/contexts/AppContext";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
 
 interface SavingsGoalProps {
   name: string;
@@ -65,15 +69,69 @@ function SavingsGoalCard({
 }
 
 export function SavingsGoals() {
-  const { savingsGoals } = useAppContext();
+  const { savingsGoals, addSavingsGoal } = useAppContext();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newGoal, setNewGoal] = useState({
+    name: "",
+    target: "",
+    current: "",
+    deadline: "",
+    category: "Travel"
+  });
 
-  // Example icons for predefined goals
-  const goalIcons = {
-    "Vacation": <Plane className="h-5 w-5" />,
-    "Car": <Car className="h-5 w-5" />,
-    "House": <Home className="h-5 w-5" />,
-    "Education": <GraduationCap className="h-5 w-5" />
+  // Categories with their icons
+  const categories = [
+    { name: "Travel", icon: <Plane className="h-5 w-5" /> },
+    { name: "Car", icon: <Car className="h-5 w-5" /> },
+    { name: "House", icon: <Home className="h-5 w-5" /> },
+    { name: "Education", icon: <GraduationCap className="h-5 w-5" /> }
+  ];
+
+  const handleAddGoal = () => {
+    // Validate inputs
+    if (!newGoal.name.trim()) {
+      toast.error("Please enter a goal name");
+      return;
+    }
+    
+    if (!newGoal.target || isNaN(Number(newGoal.target)) || Number(newGoal.target) <= 0) {
+      toast.error("Please enter a valid target amount");
+      return;
+    }
+    
+    if (!newGoal.deadline) {
+      toast.error("Please select a deadline");
+      return;
+    }
+    
+    // Create new goal
+    const goalToAdd = {
+      name: newGoal.name.trim(),
+      target: Number(newGoal.target),
+      current: Number(newGoal.current) || 0,
+      deadline: newGoal.deadline
+    };
+    
+    // Add to context
+    addSavingsGoal(goalToAdd);
+    
+    // Reset and close dialog
+    setNewGoal({
+      name: "",
+      target: "",
+      current: "",
+      deadline: "",
+      category: "Travel"
+    });
+    setIsDialogOpen(false);
+  };
+
+  // Get icon for a goal
+  const getGoalIcon = (goalName: string) => {
+    const category = categories.find(cat => 
+      goalName.toLowerCase().includes(cat.name.toLowerCase())
+    );
+    return category?.icon || <Home className="h-5 w-5" />;
   };
 
   return (
@@ -99,13 +157,85 @@ export function SavingsGoals() {
                   Add New Goal
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
                   <DialogTitle>Add New Savings Goal</DialogTitle>
+                  <DialogDescription>
+                    Create a new goal to help you save for something special
+                  </DialogDescription>
                 </DialogHeader>
-                <div className="py-4 text-center text-muted-foreground">
-                  Goal creation form will be implemented here.
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="goal-name">Goal Name</Label>
+                    <Input 
+                      id="goal-name" 
+                      placeholder="e.g., Japan Vacation" 
+                      value={newGoal.name}
+                      onChange={(e) => setNewGoal({...newGoal, name: e.target.value})}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="goal-target">Target Amount ($)</Label>
+                      <Input 
+                        id="goal-target" 
+                        type="number" 
+                        min="1"
+                        placeholder="e.g., 5000" 
+                        value={newGoal.target}
+                        onChange={(e) => setNewGoal({...newGoal, target: e.target.value})}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="goal-current">Current Amount ($)</Label>
+                      <Input 
+                        id="goal-current" 
+                        type="number"
+                        min="0" 
+                        placeholder="e.g., 1000" 
+                        value={newGoal.current}
+                        onChange={(e) => setNewGoal({...newGoal, current: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="grid gap-2">
+                    <Label htmlFor="goal-category">Category</Label>
+                    <Select 
+                      value={newGoal.category} 
+                      onValueChange={(value) => setNewGoal({...newGoal, category: value})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((cat) => (
+                          <SelectItem key={cat.name} value={cat.name}>
+                            <div className="flex items-center">
+                              {cat.icon}
+                              <span className="ml-2">{cat.name}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="grid gap-2">
+                    <Label htmlFor="goal-deadline">Target Date</Label>
+                    <Input 
+                      id="goal-deadline" 
+                      type="date" 
+                      value={newGoal.deadline}
+                      onChange={(e) => setNewGoal({...newGoal, deadline: e.target.value})}
+                    />
+                  </div>
                 </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+                  <Button onClick={handleAddGoal}>Create Goal</Button>
+                </DialogFooter>
               </DialogContent>
             </Dialog>
           </div>
@@ -117,7 +247,7 @@ export function SavingsGoals() {
                 name={goal.name}
                 currentAmount={goal.current}
                 targetAmount={goal.target}
-                icon={goalIcons[goal.name as keyof typeof goalIcons] || <Home className="h-5 w-5" />}
+                icon={getGoalIcon(goal.name)}
                 deadline={goal.deadline}
                 color="#3B82F6"
               />
@@ -127,6 +257,89 @@ export function SavingsGoals() {
               <Plus className="h-4 w-4 mr-2" />
               Add New Goal
             </Button>
+            
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle>Add New Savings Goal</DialogTitle>
+                  <DialogDescription>
+                    Create a new goal to help you save for something special
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="goal-name">Goal Name</Label>
+                    <Input 
+                      id="goal-name" 
+                      placeholder="e.g., Japan Vacation" 
+                      value={newGoal.name}
+                      onChange={(e) => setNewGoal({...newGoal, name: e.target.value})}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="goal-target">Target Amount ($)</Label>
+                      <Input 
+                        id="goal-target" 
+                        type="number" 
+                        min="1"
+                        placeholder="e.g., 5000" 
+                        value={newGoal.target}
+                        onChange={(e) => setNewGoal({...newGoal, target: e.target.value})}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="goal-current">Current Amount ($)</Label>
+                      <Input 
+                        id="goal-current" 
+                        type="number"
+                        min="0" 
+                        placeholder="e.g., 1000" 
+                        value={newGoal.current}
+                        onChange={(e) => setNewGoal({...newGoal, current: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="grid gap-2">
+                    <Label htmlFor="goal-category">Category</Label>
+                    <Select 
+                      value={newGoal.category} 
+                      onValueChange={(value) => setNewGoal({...newGoal, category: value})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((cat) => (
+                          <SelectItem key={cat.name} value={cat.name}>
+                            <div className="flex items-center">
+                              {cat.icon}
+                              <span className="ml-2">{cat.name}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="grid gap-2">
+                    <Label htmlFor="goal-deadline">Target Date</Label>
+                    <Input 
+                      id="goal-deadline" 
+                      type="date" 
+                      value={newGoal.deadline}
+                      onChange={(e) => setNewGoal({...newGoal, deadline: e.target.value})}
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+                  <Button onClick={handleAddGoal}>Create Goal</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         )}
       </CardContent>

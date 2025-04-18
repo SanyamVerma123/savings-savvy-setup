@@ -40,20 +40,55 @@ function OverviewCard({
   onLongPress
 }: OverviewCardProps) {
   const [pressTimer, setPressTimer] = useState<NodeJS.Timeout | null>(null);
+  const [pressProgress, setPressProgress] = useState(0);
+  const [animation, setAnimation] = useState<NodeJS.Timeout | null>(null);
   
-  const handlePressStart = useCallback(() => {
+  // Long press timeout - 4.5 seconds (4500ms)
+  const LONG_PRESS_DURATION = 4500;
+  const ANIMATION_INTERVAL = 100;
+  
+  const startLongPressTimer = useCallback(() => {
+    // Clear any existing timers
+    if (pressTimer) {
+      clearTimeout(pressTimer);
+    }
+    if (animation) {
+      clearInterval(animation);
+    }
+    
+    // Reset progress
+    setPressProgress(0);
+    
+    // Set progress animation
+    const animationInterval = setInterval(() => {
+      setPressProgress(prev => {
+        const newProgress = prev + (ANIMATION_INTERVAL / LONG_PRESS_DURATION) * 100;
+        return newProgress > 100 ? 100 : newProgress;
+      });
+    }, ANIMATION_INTERVAL);
+    
+    // Set the actual timer
     const timer = setTimeout(() => {
       onLongPress(dataId, currentValue);
-    }, 500);
+      clearInterval(animationInterval);
+      setAnimation(null);
+    }, LONG_PRESS_DURATION);
+    
     setPressTimer(timer);
-  }, [onLongPress, dataId, currentValue]);
+    setAnimation(animationInterval);
+  }, [onLongPress, dataId, currentValue, pressTimer, animation]);
   
-  const handlePressEnd = useCallback(() => {
+  const cancelLongPressTimer = useCallback(() => {
     if (pressTimer) {
       clearTimeout(pressTimer);
       setPressTimer(null);
     }
-  }, [pressTimer]);
+    if (animation) {
+      clearInterval(animation);
+      setAnimation(null);
+    }
+    setPressProgress(0);
+  }, [pressTimer, animation]);
 
   return (
     <motion.div 
@@ -61,13 +96,19 @@ function OverviewCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       whileHover={{ y: -5, transition: { duration: 0.2 } }}
-      className="w-full"
-      onTouchStart={handlePressStart}
-      onTouchEnd={handlePressEnd}
-      onMouseDown={handlePressStart}
-      onMouseUp={handlePressEnd}
-      onMouseLeave={handlePressEnd}
+      className="w-full relative"
+      onTouchStart={startLongPressTimer}
+      onTouchEnd={cancelLongPressTimer}
+      onTouchCancel={cancelLongPressTimer}
+      onMouseDown={startLongPressTimer}
+      onMouseUp={cancelLongPressTimer}
+      onMouseLeave={cancelLongPressTimer}
     >
+      {pressProgress > 0 && (
+        <div className="absolute top-0 left-0 h-1 bg-primary z-10 rounded-t-md transition-all"
+          style={{ width: `${pressProgress}%` }}
+        />
+      )}
       <Card className={`${className} card-gradient overflow-hidden w-full`}>
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
