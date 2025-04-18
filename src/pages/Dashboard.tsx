@@ -9,7 +9,7 @@ import { RecentTransactions } from "@/components/dashboard/RecentTransactions";
 import { SavingsGoals } from "@/components/dashboard/SavingsGoals";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Info } from "lucide-react";
+import { Plus, Info, Edit } from "lucide-react";
 import { TransactionForm } from "@/components/transactions/TransactionForm";
 import { useAppContext } from "@/contexts/AppContext";
 import { motion } from "framer-motion";
@@ -17,6 +17,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { AIAssistant } from "@/components/ai/AIAssistant";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { EditableTransaction } from "@/components/transactions/EditableTransaction";
 
 export default function Dashboard() {
   const { transactions, userData } = useAppContext();
@@ -27,6 +28,7 @@ export default function Dashboard() {
   
   const [showWelcome, setShowWelcome] = useState(true);
   const isMobile = useIsMobile();
+  const [editingItem, setEditingItem] = useState<string | null>(null);
   
   useEffect(() => {
     // Check if we should show the welcome message
@@ -50,6 +52,10 @@ export default function Dashboard() {
   const handleDismissWelcome = () => {
     localStorage.setItem('hasSeenWelcome', 'true');
     setShowWelcome(false);
+  };
+
+  const handleDoubleClick = (id: string) => {
+    setEditingItem(id);
   };
 
   const container = {
@@ -132,7 +138,7 @@ export default function Dashboard() {
           <OverviewCards />
         </motion.div>
 
-        <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
+        <motion.div variants={item} className="grid grid-cols-1 gap-6 w-full">
           <div className="w-full">
             <IncomeExpenseChart />
           </div>
@@ -141,12 +147,14 @@ export default function Dashboard() {
           </div>
         </motion.div>
 
-        <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
+        <motion.div variants={item} className="grid grid-cols-1 gap-6 w-full">
           <div className="w-full">
             <BudgetProgress />
           </div>
-          <div className="grid grid-cols-1 gap-6 w-full">
-            <RecentTransactions />
+          <div className="w-full">
+            <RecentTransactions onDoubleClick={handleDoubleClick} />
+          </div>
+          <div className="w-full">
             <SavingsGoals />
           </div>
         </motion.div>
@@ -171,6 +179,25 @@ export default function Dashboard() {
       
       {/* AI Assistant */}
       <AIAssistant />
+      
+      {/* Edit Dialog */}
+      {editingItem && (
+        <Dialog open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Edit className="h-4 w-4" />
+                Edit Transaction
+              </DialogTitle>
+            </DialogHeader>
+            <EditableTransaction 
+              id={editingItem}
+              onSave={() => setEditingItem(null)}
+              onCancel={() => setEditingItem(null)}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </MainLayout>
   );
 }

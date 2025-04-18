@@ -4,10 +4,35 @@ import { useAI } from "@/contexts/AIContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Bot, Send, X, Loader2, BrainCircuit, AlertCircle, Bell, Info } from "lucide-react";
+import { 
+  Bot, 
+  Send, 
+  X, 
+  Loader2, 
+  BrainCircuit, 
+  AlertCircle, 
+  Bell, 
+  Info,
+  Languages
+} from "lucide-react";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger, 
+  DialogFooter, 
+  DialogClose 
+} from "@/components/ui/dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Message {
   id: string;
@@ -16,12 +41,21 @@ interface Message {
 }
 
 export function AIAssistant() {
-  const { askAI, isLoading, hasApiKey, setApiKey } = useAI();
+  const { 
+    askAI, 
+    isLoading, 
+    hasApiKey, 
+    setApiKey,
+    language,
+    setLanguage,
+    availableLanguages 
+  } = useAI();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [tempApiKey, setTempApiKey] = useState("");
   const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
+  const [showLanguageDialog, setShowLanguageDialog] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
@@ -114,6 +148,12 @@ export function AIAssistant() {
     }
   };
 
+  const handleLanguageChange = (value: string) => {
+    setLanguage(value);
+    toast.success(`Language changed to ${availableLanguages.find(lang => lang.code === value)?.name}`);
+    setShowLanguageDialog(false);
+  };
+
   // Get proactive financial advice
   const getFinancialAdvice = async () => {
     if (!hasApiKey) {
@@ -127,7 +167,7 @@ export function AIAssistant() {
       "Review my spending patterns and suggest areas where I could save money.",
       "Do you see any budget categories where I'm consistently overspending?",
       "Based on my current income and expenses, how am I doing financially?",
-      "Give me advice on how to better achieve my savings goals."
+      "Give me brief advice on how to better achieve my savings goals."
     ];
     
     const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
@@ -150,14 +190,22 @@ export function AIAssistant() {
 
   if (!isExpanded) {
     return (
-      <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 items-end">
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 items-end">
+        <Button
+          onClick={() => setShowLanguageDialog(true)}
+          className="rounded-full p-3 shadow-lg hover:scale-105 transition-transform bg-teal-500 text-white"
+          aria-label="Change Language"
+          title="Change Language"
+        >
+          <Languages className="h-5 w-5" />
+        </Button>
         <Button
           onClick={getFinancialAdvice}
           className="rounded-full p-3 shadow-lg hover:scale-105 transition-transform bg-amber-500 text-white"
           aria-label="Get Financial Advice"
           title="Get Financial Advice"
         >
-          <Info className="h-6 w-6" />
+          <Info className="h-5 w-5" />
         </Button>
         <Button
           onClick={() => setIsExpanded(true)}
@@ -165,8 +213,43 @@ export function AIAssistant() {
           aria-label="Open AI Assistant"
           title="Open AI Assistant"
         >
-          <BrainCircuit className="h-6 w-6" />
+          <BrainCircuit className="h-5 w-5" />
         </Button>
+
+        <Dialog open={showLanguageDialog} onOpenChange={setShowLanguageDialog}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Languages className="h-5 w-5 text-finance-primary" />
+                Select Language
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="py-4">
+              <p className="mb-4 text-sm">
+                Select the language you want the AI assistant to respond in:
+              </p>
+              <Select value={language} onValueChange={handleLanguageChange}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select language" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableLanguages.map(lang => (
+                    <SelectItem key={lang.code} value={lang.code}>
+                      {lang.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Close</Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
@@ -179,19 +262,30 @@ export function AIAssistant() {
             <Bot className="h-5 w-5 mr-2 text-finance-primary" />
             <CardTitle className="text-lg">Financial AI Assistant</CardTitle>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsExpanded(false)}
-            className="h-8 w-8"
-            aria-label="Close AI Assistant"
-          >
-            <X className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setShowLanguageDialog(true)}
+              title="Change Language"
+            >
+              <Languages className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsExpanded(false)}
+              className="h-8 w-8"
+              aria-label="Close AI Assistant"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         </CardHeader>
         
         <CardContent className="p-0">
-          <div className="h-80 overflow-y-auto p-4 space-y-4">
+          <div className="h-[280px] sm:h-[320px] overflow-y-auto p-4 space-y-4">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center p-4">
                 <BrainCircuit className="h-12 w-12 text-muted-foreground mb-2" />
@@ -199,7 +293,7 @@ export function AIAssistant() {
                 <p className="text-sm text-muted-foreground mt-2">
                   Ask me anything about your finances, budgeting advice, or saving recommendations.
                 </p>
-                <div className="flex gap-2 mt-4">
+                <div className="flex flex-wrap gap-2 mt-4 justify-center">
                   <Button 
                     size="sm" 
                     variant="outline" 
@@ -227,7 +321,7 @@ export function AIAssistant() {
                   }`}
                 >
                   <div
-                    className={`rounded-lg p-3 max-w-[80%] ${
+                    className={`rounded-lg p-3 max-w-[85%] ${
                       message.sender === "user"
                         ? "bg-finance-primary text-white"
                         : "bg-secondary"
@@ -306,6 +400,41 @@ export function AIAssistant() {
             <Button type="button" onClick={handleApiKeySave}>
               Save Key
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showLanguageDialog} onOpenChange={setShowLanguageDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Languages className="h-5 w-5 text-finance-primary" />
+              Select Language
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <p className="mb-4 text-sm">
+              Select the language you want the AI assistant to respond in:
+            </p>
+            <Select value={language} onValueChange={handleLanguageChange}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select language" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableLanguages.map(lang => (
+                  <SelectItem key={lang.code} value={lang.code}>
+                    {lang.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Close</Button>
+            </DialogClose>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -38,7 +38,7 @@ export function ExpenseBreakdown() {
         <CardTitle className="text-lg font-medium">Expense Breakdown</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-[300px] w-full">
+        <div className="h-[300px] md:h-[350px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -46,8 +46,8 @@ export function ExpenseBreakdown() {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                innerRadius={isMobile ? 40 : 60}
-                outerRadius={isMobile ? 70 : 80}
+                innerRadius={isMobile ? 30 : 60}
+                outerRadius={isMobile ? 60 : 80}
                 paddingAngle={2}
                 dataKey="value"
               >
@@ -62,8 +62,8 @@ export function ExpenseBreakdown() {
               </Pie>
               <Tooltip content={<CustomTooltip />} />
               <Legend
-                layout="vertical"
-                verticalAlign="middle"
+                layout={isMobile ? "horizontal" : "vertical"}
+                verticalAlign={isMobile ? "bottom" : "middle"}
                 align={isMobile ? "center" : "right"}
                 formatter={(value, entry, index) => (
                   <span className="text-sm">{value}</span>

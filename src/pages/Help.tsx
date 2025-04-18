@@ -1,32 +1,27 @@
 
-import React, { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { 
-  ArrowRight, 
-  DollarSign, 
-  PiggyBank, 
+  HelpCircle, 
   Wallet, 
-  BarChart3, 
-  Settings, 
-  LifeBuoy, 
-  ChevronRight,
-  Lightbulb,
-  Info,
-  HelpCircle,
-  ThumbsUp,
-  User,
-  Moon,
-  Sun
+  PieChart, 
+  BarChart, 
+  Target, 
+  BrainCircuit,
+  Settings,
+  Edit,
+  Languages,
+  Key
 } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export default function Help() {
-  const [activeTab, setActiveTab] = useState("faq");
-
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -45,421 +40,309 @@ export default function Help() {
   return (
     <MainLayout>
       <motion.div 
-        className="max-w-4xl mx-auto"
+        className="flex flex-col gap-6"
         variants={container}
         initial="hidden"
         animate="show"
       >
-        <motion.div variants={item}>
-          <div className="text-center mb-10">
-            <h1 className="text-4xl font-bold mb-3 text-gradient-primary">Help & Documentation</h1>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Everything you need to know about how to use Savings Savvy, the personal finance
-              app that helps you track expenses and reach your savings goals.
-            </p>
+        <motion.div variants={item} className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold tracking-tight">Help & User Manual</h1>
           </div>
+          <p className="text-muted-foreground">
+            Learn how to use Savings Savvy to manage your finances effectively
+          </p>
         </motion.div>
 
-        <motion.div variants={item} className="mb-10">
-          <Card className="bg-gradient-to-r from-blue-500 to-teal-400 text-white dark:from-blue-600 dark:to-teal-500">
-            <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                <div>
-                  <h2 className="text-2xl font-bold mb-2">Getting Started</h2>
-                  <p className="mb-4">
-                    New to Savings Savvy? Start by adding your first transaction and setting up your profile.
-                    Your data is stored locally on your device for maximum privacy.
-                  </p>
-                  <Button 
-                    className="bg-white text-blue-600 hover:bg-white/90 btn-hover-effect"
-                    onClick={() => setActiveTab("guide")}
-                  >
-                    Quick Start Guide
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </div>
-                <LifeBuoy className="h-24 w-24 text-white/80 animate-pulse" />
+        <motion.div variants={item} className="w-full">
+          <Card className="card-gradient mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <HelpCircle className="h-5 w-5" />
+                Getting Started
+              </CardTitle>
+              <CardDescription>
+                Basic information about the application
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold">Welcome to Savings Savvy</h3>
+                <p>
+                  Savings Savvy is a comprehensive financial management application designed to help
+                  you track your income, expenses, and savings goals. This user manual will guide you
+                  through the features and functionalities of the app.
+                </p>
+                
+                <h4 className="text-lg font-medium mt-6">Key Features</h4>
+                <ul className="list-disc pl-6 space-y-2">
+                  <li>Track income and expenses</li>
+                  <li>Create and manage budgets</li>
+                  <li>Set and monitor savings goals</li>
+                  <li>Get AI-powered financial insights</li>
+                  <li>View detailed financial analytics</li>
+                  <li>Edit transactions directly from the dashboard</li>
+                </ul>
               </div>
             </CardContent>
           </Card>
-        </motion.div>
-
-        <motion.div variants={item} className="mb-10">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-2 mb-6 w-full max-w-md mx-auto">
-              <TabsTrigger value="faq" className="text-sm">Frequently Asked Questions</TabsTrigger>
-              <TabsTrigger value="guide" className="text-sm">User Guide</TabsTrigger>
-            </TabsList>
+          
+          <Accordion type="single" collapsible className="w-full mb-6">
+            <AccordionItem value="dashboard">
+              <AccordionTrigger className="px-4 py-2 bg-card rounded-t-lg border">
+                <div className="flex items-center gap-2">
+                  <BarChart className="h-5 w-5" />
+                  <span>Dashboard</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="p-4 border border-t-0 rounded-b-lg">
+                <div className="space-y-4">
+                  <p>
+                    The Dashboard is your financial command center, providing an overview of your financial
+                    health at a glance.
+                  </p>
+                  
+                  <h4 className="font-medium">Key Features:</h4>
+                  <ul className="list-disc pl-6 space-y-2">
+                    <li><strong>Overview Cards:</strong> Quick summary of income, expenses, and savings</li>
+                    <li><strong>Income vs. Expense Chart:</strong> Monthly comparison of money in vs. out</li>
+                    <li><strong>Expense Breakdown:</strong> Visual representation of spending by category</li>
+                    <li><strong>Budget Progress:</strong> Track spending against your budget</li>
+                    <li><strong>Recent Transactions:</strong> Latest financial activity</li>
+                    <li><strong>Savings Goals:</strong> Progress toward your financial targets</li>
+                  </ul>
+                  
+                  <h4 className="font-medium">Double-Tap to Edit:</h4>
+                  <p>
+                    Double-tap or double-click on any transaction to edit its details directly from the dashboard.
+                  </p>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
             
-            <TabsContent value="faq" className="mt-0">
-              <Card className="card-gradient">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <HelpCircle className="h-5 w-5 text-finance-primary" />
-                    Frequently Asked Questions
-                  </CardTitle>
-                  <CardDescription>
-                    Common questions and answers about Savings Savvy
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Accordion type="single" collapsible className="w-full">
-                    <AccordionItem value="item-1">
-                      <AccordionTrigger>How do I add a new transaction?</AccordionTrigger>
-                      <AccordionContent>
-                        <p className="mb-2">
-                          You can add a new transaction by clicking the "Add Transaction" button on the Dashboard
-                          or Transactions page. Follow these steps:
-                        </p>
-                        <ol className="list-decimal pl-5 space-y-2">
-                          <li>Click the "Add Transaction" button</li>
-                          <li>Enter a name for your transaction</li>
-                          <li>Enter the amount (numbers only)</li>
-                          <li>Select whether it's an income or expense</li>
-                          <li>Choose or enter a category</li>
-                          <li>Select the date of the transaction</li>
-                          <li>Click "Add Transaction" to save</li>
-                        </ol>
-                      </AccordionContent>
-                    </AccordionItem>
-                    
-                    <AccordionItem value="item-2">
-                      <AccordionTrigger>How do I set up a savings goal?</AccordionTrigger>
-                      <AccordionContent>
-                        <p className="mb-2">
-                          Navigate to the Savings page from the main navigation menu and follow these steps:
-                        </p>
-                        <ol className="list-decimal pl-5 space-y-2">
-                          <li>Click "Add New Goal" button</li>
-                          <li>Enter a name for your goal (e.g., "New Car")</li>
-                          <li>Enter the target amount you want to save</li>
-                          <li>Set a deadline for achieving your goal</li>
-                          <li>Start with your current progress (if any)</li>
-                          <li>Click "Create Goal" to save</li>
-                        </ol>
-                        <p className="mt-2">
-                          You can update your progress at any time by clicking on the goal and entering your new contribution.
-                        </p>
-                      </AccordionContent>
-                    </AccordionItem>
-                    
-                    <AccordionItem value="item-3">
-                      <AccordionTrigger>Where is my data stored?</AccordionTrigger>
-                      <AccordionContent>
-                        <div className="space-y-2">
-                          <p>
-                            Savings Savvy is an offline application that stores all your data locally on your device
-                            using your browser's local storage. Your financial information never leaves your device,
-                            ensuring complete privacy.
-                          </p>
-                          <p>
-                            Each device has a unique identifier, so if you use Savings Savvy on multiple devices,
-                            your data will be separate for each device. This is a privacy feature that prevents
-                            unauthorized access to your financial data.
-                          </p>
-                          <p>
-                            To clear your data, go to the Profile page and use the "Clear All Data" button in the
-                            Danger Zone section.
-                          </p>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                    
-                    <AccordionItem value="item-4">
-                      <AccordionTrigger>How do I switch between light and dark mode?</AccordionTrigger>
-                      <AccordionContent>
-                        <div className="space-y-2">
-                          <p>
-                            You can easily switch between light and dark mode by clicking the theme toggle button
-                            in the bottom-right corner of the screen.
-                          </p>
-                          <div className="flex items-center gap-4 mt-3">
-                            <div className="flex items-center gap-2">
-                              <Sun className="h-5 w-5 text-amber-500" />
-                              <span>Light Mode</span>
-                            </div>
-                            <ChevronRight className="h-4 w-4" />
-                            <div className="flex items-center gap-2">
-                              <Moon className="h-5 w-5 text-blue-400" />
-                              <span>Dark Mode</span>
-                            </div>
-                          </div>
-                          <p className="mt-2">
-                            Your theme preference is saved automatically and will be remembered
-                            the next time you use the app.
-                          </p>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                    
-                    <AccordionItem value="item-5">
-                      <AccordionTrigger>How do I create a budget?</AccordionTrigger>
-                      <AccordionContent>
-                        <div className="space-y-2">
-                          <p>
-                            To create a budget, navigate to the Budget page from the main navigation menu:
-                          </p>
-                          <ol className="list-decimal pl-5 space-y-2">
-                            <li>Click the "Add Category" button</li>
-                            <li>Enter a name for your budget category (e.g., "Groceries")</li>
-                            <li>Enter the allocated amount for this category</li>
-                            <li>Click "Add Category" to save</li>
-                          </ol>
-                          <p>
-                            As you add transactions in the specified categories, your budget progress
-                            will automatically update to show how much you've spent and how much remains.
-                          </p>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                    
-                    <AccordionItem value="item-6">
-                      <AccordionTrigger>Can I export my data?</AccordionTrigger>
-                      <AccordionContent>
-                        <p>
-                          Currently, Savings Savvy does not have a built-in export feature. However,
-                          since your data is stored locally, it remains private and secure on your device.
-                          We're working on adding export capabilities in future updates.
-                        </p>
-                      </AccordionContent>
-                    </AccordionItem>
-                    
-                    <AccordionItem value="item-7">
-                      <AccordionTrigger>How do I update my profile information?</AccordionTrigger>
-                      <AccordionContent>
-                        <div className="space-y-2">
-                          <p>
-                            You can update your profile information by following these steps:
-                          </p>
-                          <ol className="list-decimal pl-5 space-y-2">
-                            <li>Navigate to the Profile page from the main navigation menu</li>
-                            <li>Update your name and email in the form</li>
-                            <li>Click "Save Changes" to update your profile</li>
-                          </ol>
-                          <p>
-                            Your profile information is stored locally on your device and is used
-                            to personalize your experience within the app.
-                          </p>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                </CardContent>
-              </Card>
-            </TabsContent>
+            <AccordionItem value="transactions">
+              <AccordionTrigger className="px-4 py-2 bg-card rounded-t-lg border">
+                <div className="flex items-center gap-2">
+                  <Wallet className="h-5 w-5" />
+                  <span>Transactions</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="p-4 border border-t-0 rounded-b-lg">
+                <div className="space-y-4">
+                  <p>
+                    The Transactions page allows you to view, add, edit, and manage all your financial transactions.
+                  </p>
+                  
+                  <h4 className="font-medium">Key Features:</h4>
+                  <ul className="list-disc pl-6 space-y-2">
+                    <li><strong>Add Transactions:</strong> Record new income or expenses</li>
+                    <li><strong>Filter & Sort:</strong> Organize transactions by date, amount, or type</li>
+                    <li><strong>Search:</strong> Quickly find specific transactions</li>
+                    <li><strong>Edit & Delete:</strong> Modify or remove existing entries</li>
+                    <li><strong>Categories:</strong> Assign transactions to specific expense categories</li>
+                  </ul>
+                  
+                  <h4 className="font-medium">Double-Tap to Edit:</h4>
+                  <p>
+                    Double-tap or double-click on any transaction to edit its details directly from the list.
+                  </p>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
             
-            <TabsContent value="guide" className="mt-0 space-y-6">
-              <Card className="card-gradient">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <DollarSign className="h-5 w-5 text-finance-primary" />
-                    Dashboard & Transactions
-                  </CardTitle>
-                  <CardDescription>Learn how to track your income and expenses</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <h3 className="font-semibold flex items-center gap-2">
-                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-sm">1</span>
-                      Adding Transactions
-                    </h3>
-                    <p className="text-muted-foreground ml-8">
-                      Click the "Add Transaction" button on the Dashboard or Transactions page.
-                      Fill in all required fields including name, amount, type, category, and date.
-                      Your transaction will be added and reflected in your account overview.
+            <AccordionItem value="budget">
+              <AccordionTrigger className="px-4 py-2 bg-card rounded-t-lg border">
+                <div className="flex items-center gap-2">
+                  <PieChart className="h-5 w-5" />
+                  <span>Budget</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="p-4 border border-t-0 rounded-b-lg">
+                <div className="space-y-4">
+                  <p>
+                    The Budget page helps you set spending limits for different categories and track your progress.
+                  </p>
+                  
+                  <h4 className="font-medium">Key Features:</h4>
+                  <ul className="list-disc pl-6 space-y-2">
+                    <li><strong>Category Budgets:</strong> Set monthly spending limits by category</li>
+                    <li><strong>Progress Tracking:</strong> Visual indicators of budget usage</li>
+                    <li><strong>Alerts:</strong> Warnings when nearing or exceeding budget limits</li>
+                    <li><strong>Budget Adjustment:</strong> Modify budget allocations as needed</li>
+                  </ul>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="savings">
+              <AccordionTrigger className="px-4 py-2 bg-card rounded-t-lg border">
+                <div className="flex items-center gap-2">
+                  <Target className="h-5 w-5" />
+                  <span>Savings Goals</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="p-4 border border-t-0 rounded-b-lg">
+                <div className="space-y-4">
+                  <p>
+                    The Savings Goals page allows you to set financial targets and track your progress toward achieving them.
+                  </p>
+                  
+                  <h4 className="font-medium">Key Features:</h4>
+                  <ul className="list-disc pl-6 space-y-2">
+                    <li><strong>Goal Setting:</strong> Create new savings objectives with target amounts</li>
+                    <li><strong>Progress Tracking:</strong> Visual representation of your savings journey</li>
+                    <li><strong>Timelines:</strong> Set and monitor deadlines for your financial goals</li>
+                    <li><strong>Contribution History:</strong> See all contributions to each goal</li>
+                  </ul>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="ai-assistant">
+              <AccordionTrigger className="px-4 py-2 bg-card rounded-t-lg border">
+                <div className="flex items-center gap-2">
+                  <BrainCircuit className="h-5 w-5" />
+                  <span>AI Financial Assistant</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="p-4 border border-t-0 rounded-b-lg">
+                <div className="space-y-4">
+                  <p>
+                    The AI Financial Assistant provides personalized financial advice and insights based on your data.
+                  </p>
+                  
+                  <h4 className="font-medium">Key Features:</h4>
+                  <ul className="list-disc pl-6 space-y-2">
+                    <li><strong>Financial Analysis:</strong> Get insights on spending patterns and saving opportunities</li>
+                    <li><strong>Budget Recommendations:</strong> Receive suggestions for budget adjustments</li>
+                    <li><strong>Savings Advice:</strong> Tips on how to reach your savings goals faster</li>
+                    <li><strong>Multilingual Support:</strong> Get advice in multiple languages</li>
+                    <li><strong>Proactive Alerts:</strong> Notifications about potential financial issues</li>
+                  </ul>
+                  
+                  <h4 className="font-medium">Changing Language:</h4>
+                  <p>
+                    Click the language icon in the AI Assistant to change the language. The assistant will respond
+                    in your selected language.
+                  </p>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="settings">
+              <AccordionTrigger className="px-4 py-2 bg-card rounded-t-lg border">
+                <div className="flex items-center gap-2">
+                  <Settings className="h-5 w-5" />
+                  <span>Settings</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="p-4 border border-t-0 rounded-b-lg">
+                <div className="space-y-4">
+                  <p>
+                    The Settings page allows you to customize the app according to your preferences.
+                  </p>
+                  
+                  <h4 className="font-medium">Key Features:</h4>
+                  <ul className="list-disc pl-6 space-y-2">
+                    <li><strong>Theme Toggle:</strong> Switch between light and dark mode</li>
+                    <li><strong>Language Settings:</strong> Change the AI assistant language</li>
+                    <li><strong>Notification Preferences:</strong> Control app notifications</li>
+                    <li><strong>API Keys:</strong> Manage connections to AI services</li>
+                    <li><strong>Account Management:</strong> Update profile and sign out</li>
+                  </ul>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="special-features">
+              <AccordionTrigger className="px-4 py-2 bg-card rounded-t-lg border">
+                <div className="flex items-center gap-2">
+                  <Edit className="h-5 w-5" />
+                  <span>Special Features</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="p-4 border border-t-0 rounded-b-lg">
+                <div className="space-y-4">
+                  <h4 className="font-medium">Double-Tap to Edit:</h4>
+                  <p>
+                    Double-tap or double-click on any transaction to edit its details directly from any page
+                    where transactions are displayed.
+                  </p>
+                  
+                  <h4 className="font-medium">Multilingual AI Assistant:</h4>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Languages className="h-5 w-5" />
+                    <p>
+                      Change the language of the AI assistant to get financial advice in your preferred language.
                     </p>
                   </div>
                   
-                  <div className="space-y-2">
-                    <h3 className="font-semibold flex items-center gap-2">
-                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-sm">2</span>
-                      Filtering Transactions
-                    </h3>
-                    <p className="text-muted-foreground ml-8">
-                      On the Transactions page, use the search bar to find specific transactions.
-                      You can also filter by transaction type (income/expense) and category using the dropdown menus.
-                      Sort transactions by date or amount in ascending or descending order.
+                  <h4 className="font-medium">Multiple AI Services:</h4>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Key className="h-5 w-5" />
+                    <p>
+                      Configure different AI providers through the API Keys section in Settings.
                     </p>
                   </div>
-                  
-                  <div className="space-y-2">
-                    <h3 className="font-semibold flex items-center gap-2">
-                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-sm">3</span>
-                      Understanding the Dashboard
-                    </h3>
-                    <p className="text-muted-foreground ml-8">
-                      The Dashboard displays your financial overview with cards showing total income, expenses, and savings.
-                      Charts visualize your spending patterns and income vs. expenses.
-                      Recent transactions and budget progress are also displayed for quick reference.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="card-gradient">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Wallet className="h-5 w-5 text-finance-expense" />
-                    Budgeting & Savings
-                  </CardTitle>
-                  <CardDescription>Learn how to manage your budget and savings goals</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <h3 className="font-semibold flex items-center gap-2">
-                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-sm">1</span>
-                      Creating Budget Categories
-                    </h3>
-                    <p className="text-muted-foreground ml-8">
-                      Go to the Budget page and click "Add Category". Enter a name and the allocated monthly amount.
-                      Your budget categories will automatically track spending as you add transactions.
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <h3 className="font-semibold flex items-center gap-2">
-                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-sm">2</span>
-                      Setting Savings Goals
-                    </h3>
-                    <p className="text-muted-foreground ml-8">
-                      Visit the Savings page and click "Add New Goal". Set a name, target amount, and deadline.
-                      Track your progress towards each goal and add contributions as you save more.
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <h3 className="font-semibold flex items-center gap-2">
-                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-sm">3</span>
-                      Monitoring Progress
-                    </h3>
-                    <p className="text-muted-foreground ml-8">
-                      Check the Budget page to see how your spending compares to your allocated amounts.
-                      The progress bars show how much of each budget category has been used.
-                      Savings goals display your progress towards your target amount and time remaining.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="card-gradient">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <User className="h-5 w-5 text-finance-savings" />
-                    Account & Settings
-                  </CardTitle>
-                  <CardDescription>Learn how to manage your profile and app settings</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <h3 className="font-semibold flex items-center gap-2">
-                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-sm">1</span>
-                      Updating Your Profile
-                    </h3>
-                    <p className="text-muted-foreground ml-8">
-                      Go to the Profile page to update your name and email address.
-                      Your profile information is used to personalize your experience in the app.
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <h3 className="font-semibold flex items-center gap-2">
-                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-sm">2</span>
-                      Changing Themes
-                    </h3>
-                    <p className="text-muted-foreground ml-8">
-                      Toggle between light and dark mode using the button in the bottom-right corner of the screen.
-                      Your preference is saved automatically for future sessions.
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <h3 className="font-semibold flex items-center gap-2">
-                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-sm">3</span>
-                      Managing Your Data
-                    </h3>
-                    <p className="text-muted-foreground ml-8">
-                      Your data is stored locally on your device. Each device has a unique identifier (Device ID).
-                      To clear all data, go to the Profile page and use the "Clear All Data" button in the Danger Zone section.
-                      This action cannot be undone, so use it carefully.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </motion.div>
-        
-        <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
-          <div className="card-gradient p-6 rounded-xl flex items-center space-x-4 hover-lift">
-            <div className="bg-finance-primary/10 p-3 rounded-full">
-              <DollarSign className="h-6 w-6 text-finance-primary" />
-            </div>
-            <div>
-              <h3 className="font-medium">Transactions</h3>
-              <p className="text-sm text-muted-foreground">Track income and expenses</p>
-            </div>
-          </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
           
-          <div className="card-gradient p-6 rounded-xl flex items-center space-x-4 hover-lift">
-            <div className="bg-finance-expense/10 p-3 rounded-full">
-              <Wallet className="h-6 w-6 text-finance-expense" />
-            </div>
-            <div>
-              <h3 className="font-medium">Budget</h3>
-              <p className="text-sm text-muted-foreground">Set and manage spending limits</p>
-            </div>
-          </div>
-          
-          <div className="card-gradient p-6 rounded-xl flex items-center space-x-4 hover-lift">
-            <div className="bg-finance-savings/10 p-3 rounded-full">
-              <PiggyBank className="h-6 w-6 text-finance-savings" />
-            </div>
-            <div>
-              <h3 className="font-medium">Savings</h3>
-              <p className="text-sm text-muted-foreground">Track progress toward goals</p>
-            </div>
-          </div>
-          
-          <div className="card-gradient p-6 rounded-xl flex items-center space-x-4 hover-lift">
-            <div className="bg-finance-neutral/10 p-3 rounded-full">
-              <BarChart3 className="h-6 w-6 text-finance-neutral" />
-            </div>
-            <div>
-              <h3 className="font-medium">Analytics</h3>
-              <p className="text-sm text-muted-foreground">Visualize your financial data</p>
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div variants={item} className="text-center">
-          <h2 className="text-lg font-medium mb-4 flex items-center justify-center gap-2">
-            <ThumbsUp className="h-5 w-5 text-finance-primary" />
-            Have more questions?
-          </h2>
-          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-            We're always improving Savings Savvy. Check back regularly for new features and updates
-            to help you manage your finances more effectively.
-          </p>
-          <Button className="btn-hover-effect">
-            <Info className="mr-2 h-4 w-4" />
-            View More Tips & Tricks
-          </Button>
-        </motion.div>
-        
-        <motion.div variants={item} className="mt-12 bg-blue-50 dark:bg-gray-800/30 p-6 rounded-lg border border-blue-100 dark:border-gray-700">
-          <div className="flex items-start gap-4">
-            <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-full">
-              <Lightbulb className="h-6 w-6 text-blue-500" />
-            </div>
-            <div>
-              <h3 className="font-semibold mb-2">Pro Tip</h3>
-              <p className="text-sm text-muted-foreground">
-                Categorize your transactions consistently to get the most accurate insights from 
-                the charts and reports. You can create custom categories that match your specific
-                spending habits.
-              </p>
-            </div>
-          </div>
+          <Card className="card-gradient mt-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <HelpCircle className="h-5 w-5" />
+                FAQs & Support
+              </CardTitle>
+              <CardDescription>
+                Frequently asked questions and how to get help
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="faq-1">
+                  <AccordionTrigger>How do I add a transaction?</AccordionTrigger>
+                  <AccordionContent>
+                    Click the "Add Transaction" button on the dashboard or transactions page. 
+                    Fill in the transaction details (amount, date, category, type) and click Save.
+                  </AccordionContent>
+                </AccordionItem>
+                
+                <AccordionItem value="faq-2">
+                  <AccordionTrigger>How do I edit a transaction?</AccordionTrigger>
+                  <AccordionContent>
+                    Double-tap or double-click on any transaction in the list or dashboard to open the
+                    edit dialog. Make your changes and click Save.
+                  </AccordionContent>
+                </AccordionItem>
+                
+                <AccordionItem value="faq-3">
+                  <AccordionTrigger>How do I change the AI assistant's language?</AccordionTrigger>
+                  <AccordionContent>
+                    Click the language icon in the AI assistant dialog or go to Settings and select your
+                    preferred language from the dropdown menu.
+                  </AccordionContent>
+                </AccordionItem>
+                
+                <AccordionItem value="faq-4">
+                  <AccordionTrigger>Is my data secure?</AccordionTrigger>
+                  <AccordionContent>
+                    Yes, your data is stored locally on your device. API keys for AI services are also
+                    stored locally and never sent to our servers.
+                  </AccordionContent>
+                </AccordionItem>
+                
+                <AccordionItem value="faq-5">
+                  <AccordionTrigger>How do I set up an API key for the AI assistant?</AccordionTrigger>
+                  <AccordionContent>
+                    Go to Settings, select the API Keys tab, and enter your API key (Groq, OpenAI, etc.)
+                    in the appropriate field. Click Save to store the key locally.
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </CardContent>
+          </Card>
         </motion.div>
       </motion.div>
     </MainLayout>

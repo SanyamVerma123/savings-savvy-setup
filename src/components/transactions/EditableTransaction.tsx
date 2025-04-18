@@ -1,113 +1,160 @@
 
-import { useState, useEffect, useRef } from "react";
-import { Input } from "@/components/ui/input";
+import { useState, useEffect } from "react";
+import { useAppContext } from "@/contexts/AppContext";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
-
-interface TransactionType {
-  id: string;
-  name: string;
-  category: string;
-  amount: number;
-  date: string;
-  type: "income" | "expense";
-}
+import { Loader2, Save, Trash2 } from "lucide-react";
 
 interface EditableTransactionProps {
-  transaction: TransactionType;
-  onSave: (id: string, updatedTransaction: Partial<TransactionType>) => void;
+  id: string;
+  onSave: () => void;
   onCancel: () => void;
-  categories: string[];
 }
 
-export function EditableTransaction({ 
-  transaction, 
-  onSave, 
-  onCancel,
-  categories 
-}: EditableTransactionProps) {
-  const [name, setName] = useState(transaction.name);
-  const [amount, setAmount] = useState(transaction.amount.toString());
-  const [category, setCategory] = useState(transaction.category);
-  const [date, setDate] = useState(transaction.date);
-  const [type, setType] = useState<"income" | "expense">(transaction.type);
-  
-  const inputRef = useRef<HTMLInputElement>(null);
-  
+export function EditableTransaction({ id, onSave, onCancel }: EditableTransactionProps) {
+  const { transactions, updateTransaction, removeTransaction } = useAppContext();
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    amount: "",
+    date: "",
+    category: "",
+    type: "",
+  });
+
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
+    const transaction = transactions.find(t => t.id === id);
+    if (transaction) {
+      setFormData({
+        name: transaction.name,
+        amount: transaction.amount.toString(),
+        date: transaction.date,
+        category: transaction.category,
+        type: transaction.type,
+      });
     }
-  }, []);
-  
-  const handleSave = () => {
-    // Validate inputs
-    if (!name.trim()) {
-      toast.error("Transaction name cannot be empty");
-      return;
-    }
-    
-    const amountValue = parseFloat(amount);
-    if (isNaN(amountValue) || amountValue <= 0) {
-      toast.error("Please enter a valid amount");
-      return;
-    }
-    
-    // Save changes
-    onSave(transaction.id, {
-      name,
-      amount: amountValue,
-      category,
-      date,
-      type
-    });
+  }, [id, transactions]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
-  
-  return (
-    <div className="p-2 bg-secondary/30 rounded-md border border-primary/20 space-y-2">
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <label className="text-xs text-muted-foreground">Name</label>
-          <Input
-            ref={inputRef}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="h-8"
-          />
-        </div>
-        <div>
-          <label className="text-xs text-muted-foreground">Amount</label>
-          <Input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="h-8"
-          />
-        </div>
-      </div>
+
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      updateTransaction(id, {
+        ...formData,
+        amount: parseFloat(formData.amount),
+      });
       
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <label className="text-xs text-muted-foreground">Category</label>
-          <Select value={category} onValueChange={setCategory}>
-            <SelectTrigger className="h-8">
+      toast.success("Transaction updated successfully");
+      onSave();
+    } catch (error) {
+      console.error("Error updating transaction:", error);
+      toast.error("Failed to update transaction");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = () => {
+    if (confirm("Are you sure you want to delete this transaction?")) {
+      removeTransaction(id);
+      toast.success("Transaction deleted successfully");
+      onCancel();
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+      <div className="grid gap-4">
+        <div className="grid gap-2">
+          <Label htmlFor="name">Transaction Name</Label>
+          <Input
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+        
+        <div className="grid gap-2">
+          <Label htmlFor="amount">Amount</Label>
+          <Input
+            id="amount"
+            name="amount"
+            type="number"
+            step="0.01"
+            min="0"
+            value={formData.amount}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+        
+        <div className="grid gap-2">
+          <Label htmlFor="date">Date</Label>
+          <Input
+            id="date"
+            name="date"
+            type="date"
+            value={formData.date}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+        
+        <div className="grid gap-2">
+          <Label htmlFor="category">Category</Label>
+          <Select 
+            name="category"
+            value={formData.category} 
+            onValueChange={(value) => handleSelectChange("category", value)}
+          >
+            <SelectTrigger id="category">
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
             <SelectContent>
-              {categories.map((cat) => (
-                <SelectItem key={cat} value={cat}>
-                  {cat}
-                </SelectItem>
-              ))}
+              <SelectItem value="Income">Income</SelectItem>
+              <SelectItem value="Housing">Housing</SelectItem>
+              <SelectItem value="Food">Food</SelectItem>
+              <SelectItem value="Transportation">Transportation</SelectItem>
+              <SelectItem value="Entertainment">Entertainment</SelectItem>
+              <SelectItem value="Utilities">Utilities</SelectItem>
+              <SelectItem value="Healthcare">Healthcare</SelectItem>
+              <SelectItem value="Shopping">Shopping</SelectItem>
+              <SelectItem value="Education">Education</SelectItem>
+              <SelectItem value="Personal">Personal</SelectItem>
+              <SelectItem value="Other">Other</SelectItem>
             </SelectContent>
           </Select>
         </div>
-        <div>
-          <label className="text-xs text-muted-foreground">Type</label>
-          <Select value={type} onValueChange={(value: "income" | "expense") => setType(value)}>
-            <SelectTrigger className="h-8">
+        
+        <div className="grid gap-2">
+          <Label htmlFor="type">Type</Label>
+          <Select 
+            name="type"
+            value={formData.type} 
+            onValueChange={(value) => handleSelectChange("type", value)}
+          >
+            <SelectTrigger id="type">
               <SelectValue placeholder="Select type" />
             </SelectTrigger>
             <SelectContent>
@@ -118,20 +165,43 @@ export function EditableTransaction({
         </div>
       </div>
       
-      <div>
-        <label className="text-xs text-muted-foreground">Date</label>
-        <Input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className="h-8"
-        />
+      <div className="flex justify-between">
+        <Button 
+          type="button" 
+          variant="destructive" 
+          onClick={handleDelete}
+          disabled={isLoading}
+        >
+          <Trash2 className="mr-2 h-4 w-4" />
+          Delete
+        </Button>
+        <div className="flex gap-2">
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={onCancel}
+            disabled={isLoading}
+          >
+            Cancel
+          </Button>
+          <Button 
+            type="submit" 
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="mr-2 h-4 w-4" />
+                Save Changes
+              </>
+            )}
+          </Button>
+        </div>
       </div>
-      
-      <div className="flex justify-end space-x-2 pt-1">
-        <Button size="sm" variant="outline" onClick={onCancel}><X className="h-4 w-4 mr-1" /> Cancel</Button>
-        <Button size="sm" onClick={handleSave}><Check className="h-4 w-4 mr-1" /> Save</Button>
-      </div>
-    </div>
+    </form>
   );
 }

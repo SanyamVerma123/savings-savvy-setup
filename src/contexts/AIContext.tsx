@@ -8,6 +8,9 @@ interface AIContextType {
   askAI: (question: string) => Promise<string>;
   setApiKey: (key: string) => void;
   hasApiKey: boolean;
+  language: string;
+  setLanguage: (lang: string) => void;
+  availableLanguages: {code: string, name: string}[];
 }
 
 const AIContext = createContext<AIContextType | undefined>(undefined);
@@ -28,6 +31,24 @@ export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     return storedKey || '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';
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [language, setLanguage] = useState<string>(() => {
+    return localStorage.getItem(`ai_language_${deviceId}`) || 'en';
+  });
+
+  const availableLanguages = [
+    {code: 'en', name: 'English'},
+    {code: 'es', name: 'Spanish'},
+    {code: 'fr', name: 'French'},
+    {code: 'de', name: 'German'},
+    {code: 'it', name: 'Italian'},
+    {code: 'pt', name: 'Portuguese'},
+    {code: 'ru', name: 'Russian'},
+    {code: 'zh', name: 'Chinese'},
+    {code: 'ja', name: 'Japanese'},
+    {code: 'ko', name: 'Korean'},
+    {code: 'ar', name: 'Arabic'},
+    {code: 'hi', name: 'Hindi'}
+  ];
 
   const hasApiKey = Boolean(apiKey);
 
@@ -35,6 +56,12 @@ export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
   const saveApiKey = (key: string) => {
     setApiKey(key);
     localStorage.setItem(`ai_api_key_${deviceId}`, key);
+  };
+
+  // Save language to localStorage whenever it changes
+  const saveLanguage = (lang: string) => {
+    setLanguage(lang);
+    localStorage.setItem(`ai_language_${deviceId}`, lang);
   };
 
   const askAI = async (question: string): Promise<string> => {
@@ -93,7 +120,11 @@ export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
               
               When appropriate, suggest notifications the user might want to set up (like budget alerts, payment reminders, or savings milestones).
               
-              If you identify concerning patterns (like overspending in certain categories, missed savings opportunities, or potential cashflow issues), highlight them clearly and suggest actionable solutions.`
+              If you identify concerning patterns (like overspending in certain categories, missed savings opportunities, or potential cashflow issues), highlight them clearly and suggest actionable solutions.
+              
+              Keep your responses brief and to the point, focusing on actionable advice. Avoid long explanations unless requested.
+              
+              Respond in the following language: ${language}. If you don't know this language, respond in English but mention you don't support that language yet.`
             },
             {
               role: "user",
@@ -101,7 +132,7 @@ export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
             }
           ],
           temperature: 0.5,
-          max_tokens: 800,
+          max_tokens: 600,
         })
       });
 
@@ -122,7 +153,15 @@ export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
   };
 
   return (
-    <AIContext.Provider value={{ isLoading, askAI, setApiKey: saveApiKey, hasApiKey }}>
+    <AIContext.Provider value={{ 
+      isLoading, 
+      askAI, 
+      setApiKey: saveApiKey, 
+      hasApiKey,
+      language,
+      setLanguage: saveLanguage,
+      availableLanguages
+    }}>
       {children}
     </AIContext.Provider>
   );
