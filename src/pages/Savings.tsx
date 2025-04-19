@@ -1,4 +1,3 @@
-
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,7 +24,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -142,10 +141,8 @@ export default function Savings() {
     frequency: "Monthly"
   });
 
-  // Frequency options
   const frequencies = ["Weekly", "Bi-weekly", "Monthly", "Quarterly"];
   
-  // Categories with icons
   const categories = [
     { name: "Travel", icon: <Plane className="h-5 w-5" />, color: "#3B82F6" },
     { name: "Transportation", icon: <Car className="h-5 w-5" />, color: "#10B981" },
@@ -156,7 +153,6 @@ export default function Savings() {
   ];
 
   const handleAddGoal = () => {
-    // Validate inputs
     if (!newGoal.name.trim()) {
       toast.error("Please enter a goal name");
       return;
@@ -172,7 +168,6 @@ export default function Savings() {
       return;
     }
     
-    // Create new goal
     const goalToAdd = {
       name: newGoal.name.trim(),
       target: Number(newGoal.target),
@@ -180,10 +175,8 @@ export default function Savings() {
       deadline: newGoal.deadline
     };
     
-    // Add to context
     addSavingsGoal(goalToAdd);
     
-    // Reset and close dialog
     setNewGoal({
       name: "",
       target: "",
@@ -198,9 +191,7 @@ export default function Savings() {
     toast.success("New savings goal created successfully!");
   };
 
-  // Process real savings goals data for display
   const processedGoals = savingsGoals.map(goal => {
-    // Find category based on name
     const category = categories.find(cat => 
       goal.name.toLowerCase().includes(cat.name.toLowerCase())
     ) || categories[0];
@@ -214,12 +205,11 @@ export default function Savings() {
       icon: category.icon,
       color: category.color,
       category: category.name,
-      contribution: 100, // Default values since they're not in the data model
+      contribution: 100,
       frequency: "Monthly"
     };
   });
 
-  // Sample goals data to merge with real data
   const sampleGoals = [
     {
       id: "goal1",
@@ -247,18 +237,14 @@ export default function Savings() {
     }
   ];
 
-  // Combine real goals with sample goals if needed
   const displayGoals = processedGoals.length > 0 ? processedGoals : sampleGoals;
   
-  // Calculate total values
   const totalTargetAmount = displayGoals.reduce((sum, goal) => sum + goal.targetAmount, 0);
   const totalCurrentAmount = displayGoals.reduce((sum, goal) => sum + goal.currentAmount, 0);
   const totalMonthlyContribution = displayGoals.reduce((sum, goal) => {
-    // Only count monthly contributions
     if (goal.frequency === "Monthly") {
       return sum + goal.contribution;
     }
-    // Convert other frequencies to monthly equivalent
     if (goal.frequency === "Weekly") {
       return sum + (goal.contribution * 4.33);
     }

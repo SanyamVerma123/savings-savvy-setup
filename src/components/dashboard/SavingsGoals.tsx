@@ -1,10 +1,9 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plane, Car, Home, GraduationCap, Plus, AlertCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAppContext } from "@/contexts/AppContext";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -79,7 +78,6 @@ export function SavingsGoals() {
     category: "Travel"
   });
 
-  // Categories with their icons
   const categories = [
     { name: "Travel", icon: <Plane className="h-5 w-5" /> },
     { name: "Car", icon: <Car className="h-5 w-5" /> },
@@ -88,7 +86,6 @@ export function SavingsGoals() {
   ];
 
   const handleAddGoal = () => {
-    // Validate inputs
     if (!newGoal.name.trim()) {
       toast.error("Please enter a goal name");
       return;
@@ -104,7 +101,6 @@ export function SavingsGoals() {
       return;
     }
     
-    // Create new goal
     const goalToAdd = {
       name: newGoal.name.trim(),
       target: Number(newGoal.target),
@@ -112,10 +108,8 @@ export function SavingsGoals() {
       deadline: newGoal.deadline
     };
     
-    // Add to context
     addSavingsGoal(goalToAdd);
     
-    // Reset and close dialog
     setNewGoal({
       name: "",
       target: "",
@@ -126,7 +120,6 @@ export function SavingsGoals() {
     setIsDialogOpen(false);
   };
 
-  // Get icon for a goal
   const getGoalIcon = (goalName: string) => {
     const category = categories.find(cat => 
       goalName.toLowerCase().includes(cat.name.toLowerCase())
