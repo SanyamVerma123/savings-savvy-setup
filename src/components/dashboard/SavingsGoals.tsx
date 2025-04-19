@@ -1,37 +1,86 @@
+
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plane, Car, Home, GraduationCap, Plus, AlertCircle } from "lucide-react";
+import { 
+  Plane, Car, Home, GraduationCap, Plus, 
+  AlertCircle, Edit, Droplets
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAppContext } from "@/contexts/AppContext";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
-import { useState } from "react";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogTrigger 
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 
 interface SavingsGoalProps {
+  id: string;
   name: string;
   currentAmount: number;
   targetAmount: number;
   icon: React.ReactNode;
   deadline: string;
   color: string;
+  onEdit: (id: string) => void;
+  onAddContribution: (id: string) => void;
 }
 
 function SavingsGoalCard({
+  id,
   name,
   currentAmount,
   targetAmount,
   icon,
   deadline,
-  color
+  color,
+  onEdit,
+  onAddContribution
 }: SavingsGoalProps) {
   const percentage = Math.min((currentAmount / targetAmount) * 100, 100);
   const formattedPercentage = percentage.toFixed(0);
+  
+  // Use long press detection for edit
+  const [pressTimer, setPressTimer] = useState<NodeJS.Timeout | null>(null);
+  
+  const handleMouseDown = () => {
+    const timer = setTimeout(() => {
+      onEdit(id);
+    }, 800); // 800ms long press
+    setPressTimer(timer);
+  };
+  
+  const handleMouseUp = () => {
+    if (pressTimer) {
+      clearTimeout(pressTimer);
+      setPressTimer(null);
+    }
+  };
+  
+  const handleClick = () => {
+    onAddContribution(id);
+  };
 
   return (
-    <Card className="overflow-hidden card-gradient border-t-4" style={{ borderTopColor: color }}>
+    <Card 
+      className="overflow-hidden card-gradient border-t-4 cursor-pointer hover:shadow-md transition-shadow"
+      style={{ borderTopColor: color }}
+      onClick={handleClick}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+      onTouchStart={handleMouseDown}
+      onTouchEnd={handleMouseUp}
+      onTouchCancel={handleMouseUp}
+    >
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
@@ -68,9 +117,22 @@ function SavingsGoalCard({
 }
 
 export function SavingsGoals() {
-  const { savingsGoals, addSavingsGoal } = useAppContext();
+  const { savingsGoals, addSavingsGoal, updateSavingsGoal, removeSavingsGoal } = useAppContext();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isContributionDialogOpen, setIsContributionDialogOpen] = useState(false);
+  const [selectedGoalId, setSelectedGoalId] = useState<string | null>(null);
+  const [contributionAmount, setContributionAmount] = useState("");
+  
   const [newGoal, setNewGoal] = useState({
+    name: "",
+    target: "",
+    current: "",
+    deadline: "",
+    category: "Travel"
+  });
+  
+  const [editGoal, setEditGoal] = useState({
     name: "",
     target: "",
     current: "",
@@ -119,12 +181,105 @@ export function SavingsGoals() {
     });
     setIsDialogOpen(false);
   };
+  
+  const handleEditGoal = () => {
+    if (!selectedGoalId) return;
+    
+    const selectedGoal = savingsGoals.find(goal => goal.id === selectedGoalId);
+    if (!selectedGoal) return;
+    
+    if (!editGoal.name.trim()) {
+      toast.error("Please enter a goal name");
+      return;
+    }
+    
+    if (!editGoal.target || isNaN(Number(editGoal.target)) || Number(editGoal.target) <= 0) {
+      toast.error("Please enter a valid target amount");
+      return;
+    }
+    
+    if (!editGoal.deadline) {
+      toast.error("Please select a deadline");
+      return;
+    }
+    
+    // Create updated goal object
+    const updatedGoal = {
+      ...selectedGoal,
+      name: editGoal.name.trim(),
+      target: Number(editGoal.target),
+      current: Number(editGoal.current) || 0,
+      deadline: editGoal.deadline
+    };
+    
+    // First remove the old goal
+    removeSavingsGoal(selectedGoalId);
+    
+    // Then add the updated one
+    addSavingsGoal(updatedGoal);
+    
+    setIsEditDialogOpen(false);
+    setSelectedGoalId(null);
+    toast.success("Goal updated successfully");
+  };
+  
+  const handleAddContribution = () => {
+    if (!selectedGoalId) return;
+    
+    const amount = Number(contributionAmount);
+    if (isNaN(amount) || amount <= 0) {
+      toast.error("Please enter a valid contribution amount");
+      return;
+    }
+    
+    const selectedGoal = savingsGoals.find(goal => goal.id === selectedGoalId);
+    if (!selectedGoal) return;
+    
+    // Update the goal with the new contribution
+    const newAmount = selectedGoal.current + amount;
+    updateSavingsGoal(selectedGoalId, newAmount);
+    
+    setContributionAmount("");
+    setIsContributionDialogOpen(false);
+    setSelectedGoalId(null);
+    
+    toast.success(`Added $${amount} to ${selectedGoal.name}`);
+  };
+  
+  const handleEditClick = (id: string) => {
+    const goal = savingsGoals.find(g => g.id === id);
+    if (!goal) return;
+    
+    setSelectedGoalId(id);
+    setEditGoal({
+      name: goal.name,
+      target: goal.target.toString(),
+      current: goal.current.toString(),
+      deadline: goal.deadline,
+      category: getCategoryFromName(goal.name)
+    });
+    
+    setIsEditDialogOpen(true);
+  };
+  
+  const handleContributionClick = (id: string) => {
+    setSelectedGoalId(id);
+    setContributionAmount("");
+    setIsContributionDialogOpen(true);
+  };
 
   const getGoalIcon = (goalName: string) => {
     const category = categories.find(cat => 
       goalName.toLowerCase().includes(cat.name.toLowerCase())
     );
     return category?.icon || <Home className="h-5 w-5" />;
+  };
+  
+  const getCategoryFromName = (goalName: string) => {
+    const category = categories.find(cat => 
+      goalName.toLowerCase().includes(cat.name.toLowerCase())
+    );
+    return category?.name || "Travel";
   };
 
   return (
@@ -237,12 +392,15 @@ export function SavingsGoals() {
             {savingsGoals.map((goal) => (
               <SavingsGoalCard
                 key={goal.id}
+                id={goal.id}
                 name={goal.name}
                 currentAmount={goal.current}
                 targetAmount={goal.target}
                 icon={getGoalIcon(goal.name)}
                 deadline={goal.deadline}
                 color="#3B82F6"
+                onEdit={handleEditClick}
+                onAddContribution={handleContributionClick}
               />
             ))}
 
@@ -336,6 +494,119 @@ export function SavingsGoals() {
           </div>
         )}
       </CardContent>
+      
+      {/* Edit Goal Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit Savings Goal</DialogTitle>
+            <DialogDescription>
+              Update your savings goal details
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="edit-goal-name">Goal Name</Label>
+              <Input 
+                id="edit-goal-name" 
+                value={editGoal.name}
+                onChange={(e) => setEditGoal({...editGoal, name: e.target.value})}
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="edit-goal-target">Target Amount ($)</Label>
+                <Input 
+                  id="edit-goal-target" 
+                  type="number" 
+                  min="1"
+                  value={editGoal.target}
+                  onChange={(e) => setEditGoal({...editGoal, target: e.target.value})}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="edit-goal-current">Current Amount ($)</Label>
+                <Input 
+                  id="edit-goal-current" 
+                  type="number"
+                  min="0"
+                  value={editGoal.current}
+                  onChange={(e) => setEditGoal({...editGoal, current: e.target.value})}
+                />
+              </div>
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="edit-goal-category">Category</Label>
+              <Select 
+                value={editGoal.category} 
+                onValueChange={(value) => setEditGoal({...editGoal, category: value})}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.name} value={cat.name}>
+                      <div className="flex items-center">
+                        {cat.icon}
+                        <span className="ml-2">{cat.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="edit-goal-deadline">Target Date</Label>
+              <Input 
+                id="edit-goal-deadline" 
+                type="date"
+                value={editGoal.deadline}
+                onChange={(e) => setEditGoal({...editGoal, deadline: e.target.value})}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleEditGoal}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Add Contribution Dialog */}
+      <Dialog open={isContributionDialogOpen} onOpenChange={setIsContributionDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Droplets className="h-5 w-5" />
+              Add Contribution
+            </DialogTitle>
+            <DialogDescription>
+              Add funds to your savings goal
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="contribution-amount">Contribution Amount ($)</Label>
+              <Input 
+                id="contribution-amount" 
+                type="number" 
+                min="1"
+                placeholder="e.g., 100" 
+                value={contributionAmount}
+                onChange={(e) => setContributionAmount(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsContributionDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleAddContribution}>Add Contribution</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

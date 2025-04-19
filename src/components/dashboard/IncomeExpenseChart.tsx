@@ -84,8 +84,8 @@ export function IncomeExpenseChart() {
   const isMobile = useIsMobile();
   const { transactions } = useAppContext();
   
-  // Check if we have transaction data
-  const hasData = transactions.length > 0;
+  // Check if we have transaction data - make this stricter to show "No data" message
+  const hasRealData = transactions.filter(tx => tx.type === "income" || tx.type === "expense").length > 0;
   
   return (
     <Card className="card-gradient h-full w-full">
@@ -93,14 +93,14 @@ export function IncomeExpenseChart() {
         <CardTitle className="text-lg font-medium">Income vs Expenses</CardTitle>
       </CardHeader>
       <CardContent>
-        {!hasData ? (
+        {!hasRealData ? (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="flex flex-col items-center justify-center h-[300px] text-center"
           >
             <AlertTriangle className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">No transaction data</h3>
+            <h3 className="text-lg font-medium mb-2">No data yet</h3>
             <p className="text-muted-foreground max-w-sm">
               Add some transactions to see your income and expense trends.
             </p>

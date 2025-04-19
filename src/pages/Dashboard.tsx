@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { OverviewCards } from "@/components/dashboard/OverviewCards";
@@ -18,6 +17,7 @@ import { toast } from "sonner";
 import { AIAssistant } from "@/components/ai/AIAssistant";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EditableTransaction } from "@/components/transactions/EditableTransaction";
+import { NotificationButton } from "@/components/dashboard/NotificationButton";
 
 export default function Dashboard() {
   const { transactions, userData } = useAppContext();
@@ -31,14 +31,11 @@ export default function Dashboard() {
   const [editingItem, setEditingItem] = useState<string | null>(null);
   
   useEffect(() => {
-    // Check if we should show the welcome message
     const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
     if (hasSeenWelcome) {
       setShowWelcome(false);
     }
     
-    // If this is the user's first visit and they haven't added any transactions,
-    // show a helpful toast
     if (!transactions.length && !hasSeenWelcome) {
       setTimeout(() => {
         toast.info("Welcome to Savings Savvy!", {
@@ -86,20 +83,23 @@ export default function Dashboard() {
             <h1 className="text-3xl font-bold tracking-tight">
               {userData?.name ? `Hello, ${userData.name}` : 'Dashboard'}
             </h1>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="hidden sm:flex hover:scale-105 transition-transform">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Transaction
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[500px]">
-                <DialogHeader>
-                  <DialogTitle>Add a new transaction</DialogTitle>
-                </DialogHeader>
-                <TransactionForm />
-              </DialogContent>
-            </Dialog>
+            <div className="flex items-center gap-2">
+              <NotificationButton />
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button className="hidden sm:flex hover:scale-105 transition-transform">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Transaction
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[500px]">
+                  <DialogHeader>
+                    <DialogTitle>Add a new transaction</DialogTitle>
+                  </DialogHeader>
+                  <TransactionForm />
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
           <p className="text-muted-foreground">
             An overview of your finances for <span className="font-medium">{currentMonth}</span>
@@ -177,10 +177,8 @@ export default function Dashboard() {
         </motion.div>
       </motion.div>
       
-      {/* AI Assistant */}
       <AIAssistant />
       
-      {/* Edit Dialog */}
       {editingItem && (
         <Dialog open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>
           <DialogContent className="sm:max-w-[500px]">
