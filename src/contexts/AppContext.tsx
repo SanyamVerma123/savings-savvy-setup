@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { toast } from "sonner";
 
 interface UserData {
   name: string;
@@ -17,6 +18,7 @@ interface TransactionType {
   amount: number;
   date: string;
   type: "income" | "expense";
+  description?: string;
 }
 
 interface SavingsGoalType {
@@ -426,7 +428,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       hasCompletedOnboarding,
       setHasCompletedOnboarding,
       currency,
-      setCurrency
+      setCurrency: handleSetCurrency
     }}>
       {children}
     </AppContext.Provider>

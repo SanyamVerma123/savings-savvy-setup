@@ -1,3 +1,4 @@
+
 import {
   Card,
   CardContent,
@@ -56,7 +57,7 @@ export function RecentTransactions() {
                     {format(transaction.date, "MMM dd, yyyy")}
                   </TableCell>
                   <TableCell>{transaction.category}</TableCell>
-                  <TableCell>{transaction.description}</TableCell>
+                  <TableCell>{transaction.name}</TableCell>
                   <TableCell className="text-right">
                     {formatAmount(transaction.amount)}
                   </TableCell>

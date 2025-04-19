@@ -152,7 +152,7 @@ export default function Dashboard() {
             <BudgetProgress />
           </div>
           <div className="w-full">
-            <RecentTransactions onDoubleClick={handleDoubleClick} />
+            <RecentTransactions />
           </div>
           <div className="w-full">
             <SavingsGoals />

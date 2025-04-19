@@ -58,7 +58,7 @@ const CURRENCIES = [
 ];
 
 export default function Settings() {
-  const { theme, setTheme, setUserData, userData } = useAppContext();
+  const { theme, setTheme, setUserData, userData, currency, setCurrency } = useAppContext();
   const { 
     language, 
     setLanguage, 
@@ -68,9 +68,7 @@ export default function Settings() {
     setModelName,
     endpointUrl,
     modelName,
-    availableModels,
-    currency,
-    setCurrency
+    availableModels
   } = useAI();
   
   const [tempApiKey, setTempApiKey] = useState<string>("");
