@@ -153,12 +153,33 @@ function OverviewCard({
 }
 
 export function OverviewCards() {
-  const { transactions, updateTotalValues } = useAppContext();
+  const { transactions, updateTotalValues, currency } = useAppContext();
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [netSavings, setNetSavings] = useState(0);
   const [editingCard, setEditingCard] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
+  const [localCurrency, setLocalCurrency] = useState(currency);
+  
+  // Update local currency when context currency changes
+  useEffect(() => {
+    setLocalCurrency(currency);
+  }, [currency]);
+  
+  // Format currency values
+  const formatCurrency = (amount: number) => {
+    try {
+      const formatter = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: localCurrency,
+      });
+      return formatter.format(amount);
+    } catch (error) {
+      // Fallback formatting
+      console.error("Currency formatting error:", error);
+      return `${localCurrency} ${amount.toFixed(2)}`;
+    }
+  };
   
   // Animation variants
   const container = {
@@ -232,7 +253,7 @@ export function OverviewCards() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
         <OverviewCard
           title="Total Income"
-          value={`$${totalIncome.toFixed(2)}`}
+          value={formatCurrency(totalIncome)}
           icon={<DollarSign className="h-5 w-5" />}
           className="income-card"
           dataId="income"
@@ -241,7 +262,7 @@ export function OverviewCards() {
         />
         <OverviewCard
           title="Total Expenses"
-          value={`$${totalExpenses.toFixed(2)}`}
+          value={formatCurrency(totalExpenses)}
           icon={<Wallet className="h-5 w-5" />}
           className="expense-card"
           dataId="expenses"
@@ -250,7 +271,7 @@ export function OverviewCards() {
         />
         <OverviewCard
           title="Net Savings"
-          value={`$${netSavings.toFixed(2)}`}
+          value={formatCurrency(netSavings)}
           icon={<PiggyBank className="h-5 w-5" />}
           className="savings-card"
           dataId="savings"

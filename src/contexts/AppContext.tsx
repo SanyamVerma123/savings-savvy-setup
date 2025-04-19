@@ -104,8 +104,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [currency, setCurrency] = useState<string>(localStorage.getItem('currency') || 'USD');
 
   const handleSetCurrency = (newCurrency: string) => {
-    localStorage.setItem('currency', newCurrency);
-    setCurrency(newCurrency);
+    try {
+      localStorage.setItem('currency', newCurrency);
+      setCurrency(newCurrency);
+      console.log(`Currency updated to: ${newCurrency}`);
+    } catch (error) {
+      console.error("Error updating currency:", error);
+      toast.error("Failed to update currency. Please try again.");
+    }
   };
 
   useEffect(() => {
@@ -178,7 +184,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setTransactions(updatedTransactions);
     localStorage.setItem(`transactions_${deviceId}`, JSON.stringify(updatedTransactions));
     
-    // Update budget categories if this is an expense
     if (transaction.type === 'expense') {
       const category = budgetCategories.find(
         cat => cat.name.toLowerCase() === transaction.category.toLowerCase()
@@ -198,9 +203,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setTransactions(updatedTransactions);
     localStorage.setItem(`transactions_${deviceId}`, JSON.stringify(updatedTransactions));
     
-    // Update budget categories if necessary
     if (oldTransaction && oldTransaction.type === 'expense') {
-      // If the expense amount changed, update the corresponding budget category
       if (updatedData.amount && updatedData.amount !== oldTransaction.amount) {
         const category = budgetCategories.find(
           cat => cat.name.toLowerCase() === oldTransaction.category.toLowerCase()
@@ -212,7 +215,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         }
       }
       
-      // If the category changed, update both old and new categories
       if (updatedData.category && updatedData.category !== oldTransaction.category) {
         const oldCategory = budgetCategories.find(
           cat => cat.name.toLowerCase() === oldTransaction.category.toLowerCase()
@@ -240,7 +242,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setTransactions(updatedTransactions);
     localStorage.setItem(`transactions_${deviceId}`, JSON.stringify(updatedTransactions));
     
-    // Update budget category if this was an expense
     if (transaction && transaction.type === 'expense') {
       const category = budgetCategories.find(
         cat => cat.name.toLowerCase() === transaction.category.toLowerCase()
@@ -307,20 +308,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   
   const updateTotalValues = (type: string, value: number) => {
     if (type === 'income') {
-      // Add a mock income transaction
       const date = new Date().toISOString().split('T')[0];
       
-      // Remove previous balance adjustment transactions
       const filteredTransactions = transactions.filter(
         tx => !(tx.name === "Balance Adjustment" && tx.type === "income")
       );
       
-      // Calculate the current income total
       const currentIncome = filteredTransactions
         .filter(tx => tx.type === 'income')
         .reduce((sum, tx) => sum + tx.amount, 0);
       
-      // Add an adjustment transaction to match the desired total
       if (value !== currentIncome) {
         const adjustmentAmount = value - currentIncome;
         
@@ -343,7 +340,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         }
       }
       
-      // Update user data if available
       if (userData) {
         setUserData({
           ...userData,
@@ -351,20 +347,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         });
       }
     } else if (type === 'expenses') {
-      // Similar approach for expenses
       const date = new Date().toISOString().split('T')[0];
       
-      // Remove previous balance adjustment transactions
       const filteredTransactions = transactions.filter(
         tx => !(tx.name === "Balance Adjustment" && tx.type === "expense")
       );
       
-      // Calculate the current expense total
       const currentExpenses = filteredTransactions
         .filter(tx => tx.type === 'expense')
         .reduce((sum, tx) => sum + tx.amount, 0);
       
-      // Add an adjustment transaction to match the desired total
       if (value !== currentExpenses) {
         const adjustmentAmount = value - currentExpenses;
         
@@ -387,7 +379,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         }
       }
       
-      // Update user data if available
       if (userData) {
         setUserData({
           ...userData,
@@ -395,7 +386,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         });
       }
     } else if (type === 'savings') {
-      // Just update user data for savings
       if (userData) {
         setUserData({
           ...userData,
