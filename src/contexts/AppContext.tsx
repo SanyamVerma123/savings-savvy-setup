@@ -1,6 +1,4 @@
-
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { toast } from 'sonner';
+import React, { createContext, useContext, useState } from "react";
 
 interface UserData {
   name: string;
@@ -57,6 +55,8 @@ interface AppContextType {
   deviceId: string;
   hasCompletedOnboarding: boolean;
   setHasCompletedOnboarding: (completed: boolean) => void;
+  currency: string;
+  setCurrency: (currency: string) => void;
 }
 
 const defaultContext: AppContextType = {
@@ -79,14 +79,16 @@ const defaultContext: AppContextType = {
   updateTotalValues: () => {},
   deviceId: '',
   hasCompletedOnboarding: false,
-  setHasCompletedOnboarding: () => {}
+  setHasCompletedOnboarding: () => {},
+  currency: localStorage.getItem('currency') || 'USD',
+  setCurrency: () => {}
 };
 
 const AppContext = createContext<AppContextType>(defaultContext);
 
 export const useAppContext = () => useContext(AppContext);
 
-export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export function AppProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<'light' | 'dark'>(() => {
     const savedTheme = localStorage.getItem('theme');
     return (savedTheme as 'light' | 'dark') || 'light';
@@ -97,6 +99,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [budgetCategories, setBudgetCategories] = useState<BudgetCategoryType[]>([]);
   const [deviceId, setDeviceId] = useState<string>('');
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean>(false);
+  const [currency, setCurrency] = useState<string>(localStorage.getItem('currency') || 'USD');
+
+  const handleSetCurrency = (newCurrency: string) => {
+    localStorage.setItem('currency', newCurrency);
+    setCurrency(newCurrency);
+  };
 
   useEffect(() => {
     const storedDeviceId = localStorage.getItem('deviceId');
@@ -416,9 +424,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       updateTotalValues,
       deviceId,
       hasCompletedOnboarding,
-      setHasCompletedOnboarding
+      setHasCompletedOnboarding,
+      currency,
+      setCurrency
     }}>
       {children}
     </AppContext.Provider>
   );
-};
+}

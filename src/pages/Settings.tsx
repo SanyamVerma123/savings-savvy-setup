@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -35,6 +34,29 @@ import {
 } from "@/components/ui/dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 
+const CURRENCIES = [
+  { code: 'USD', symbol: '$', name: 'US Dollar' },
+  { code: 'EUR', symbol: '€', name: 'Euro' },
+  { code: 'GBP', symbol: '£', name: 'British Pound' },
+  { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
+  { code: 'AUD', symbol: 'A$', name: 'Australian Dollar' },
+  { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar' },
+  { code: 'CHF', symbol: 'Fr', name: 'Swiss Franc' },
+  { code: 'CNY', symbol: '¥', name: 'Chinese Yuan' },
+  { code: 'INR', symbol: '₹', name: 'Indian Rupee' },
+  { code: 'NZD', symbol: 'NZ$', name: 'New Zealand Dollar' },
+  { code: 'SGD', symbol: 'S$', name: 'Singapore Dollar' },
+  { code: 'HKD', symbol: 'HK$', name: 'Hong Kong Dollar' },
+  { code: 'SEK', symbol: 'kr', name: 'Swedish Krona' },
+  { code: 'KRW', symbol: '₩', name: 'South Korean Won' },
+  { code: 'AED', symbol: 'د.إ', name: 'UAE Dirham' },
+  { code: 'THB', symbol: '฿', name: 'Thai Baht' },
+  { code: 'BRL', symbol: 'R$', name: 'Brazilian Real' },
+  { code: 'MXN', symbol: '$', name: 'Mexican Peso' },
+  { code: 'ZAR', symbol: 'R', name: 'South African Rand' },
+  { code: 'RUB', symbol: '₽', name: 'Russian Ruble' },
+];
+
 export default function Settings() {
   const { theme, setTheme, setUserData, userData } = useAppContext();
   const { 
@@ -46,7 +68,9 @@ export default function Settings() {
     setModelName,
     endpointUrl,
     modelName,
-    availableModels
+    availableModels,
+    currency,
+    setCurrency
   } = useAI();
   
   const [tempApiKey, setTempApiKey] = useState<string>("");
@@ -92,19 +116,15 @@ export default function Settings() {
   };
 
   const handleExportData = () => {
-    // This would actually implement the export functionality
     toast.success(`Data export started in ${exportFormat.toUpperCase()} format`);
   };
 
   const handleImportData = () => {
-    // This would actually implement the import functionality
     toast.success("Data import started");
   };
 
   const handleDeleteAccount = () => {
-    // Clear all local storage
     localStorage.clear();
-    // Reset user data
     setUserData(null);
     toast.success("Account deleted successfully");
     navigate('/login');
@@ -316,6 +336,25 @@ export default function Settings() {
                   checked={isDarkMode}
                   onCheckedChange={handleDarkModeToggle}
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="currency">Currency</Label>
+                <Select value={currency} onValueChange={setCurrency}>
+                  <SelectTrigger id="currency">
+                    <SelectValue placeholder="Select currency" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CURRENCIES.map((curr) => (
+                      <SelectItem key={curr.code} value={curr.code}>
+                        {curr.symbol} - {curr.name} ({curr.code})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-sm text-muted-foreground">
+                  Select your preferred currency for displaying amounts
+                </p>
               </div>
 
               <div className="flex flex-col space-y-3 pt-4">
