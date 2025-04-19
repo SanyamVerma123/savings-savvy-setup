@@ -77,12 +77,17 @@ export default function Settings() {
   const [exportFormat, setExportFormat] = useState<string>("json");
   const [showDeleteDialog, setShowDeleteDialog] = useState<boolean>(false);
   const [isDarkMode, setIsDarkMode] = useState<boolean>(theme === 'dark');
+  const [localCurrency, setLocalCurrency] = useState<string>(currency);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
   useEffect(() => {
     setIsDarkMode(theme === 'dark');
   }, [theme]);
+
+  useEffect(() => {
+    setLocalCurrency(currency);
+  }, [currency]);
 
   const handleDarkModeToggle = (checked: boolean) => {
     setIsDarkMode(checked);
@@ -126,6 +131,20 @@ export default function Settings() {
     setUserData(null);
     toast.success("Account deleted successfully");
     navigate('/login');
+  };
+
+  const handleCurrencyChange = (value: string) => {
+    try {
+      setLocalCurrency(value);
+      // Delayed update to prevent UI issues
+      setTimeout(() => {
+        setCurrency(value);
+        toast.success(`Currency changed to ${value}`);
+      }, 50);
+    } catch (error) {
+      console.error("Error changing currency:", error);
+      toast.error("Failed to change currency. Please try again.");
+    }
   };
 
   return (
@@ -338,7 +357,7 @@ export default function Settings() {
 
               <div className="space-y-2">
                 <Label htmlFor="currency">Currency</Label>
-                <Select value={currency} onValueChange={setCurrency}>
+                <Select value={localCurrency} onValueChange={handleCurrencyChange}>
                   <SelectTrigger id="currency">
                     <SelectValue placeholder="Select currency" />
                   </SelectTrigger>
