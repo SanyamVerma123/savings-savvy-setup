@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -48,24 +47,13 @@ function SavingsGoalCard({
   const percentage = Math.min((currentAmount / targetAmount) * 100, 100);
   const formattedPercentage = percentage.toFixed(0);
   
-  // Use long press detection for edit
-  const [pressTimer, setPressTimer] = useState<NodeJS.Timeout | null>(null);
-  
-  const handleMouseDown = () => {
-    const timer = setTimeout(() => {
-      onEdit(id);
-    }, 800); // 800ms long press
-    setPressTimer(timer);
+  // Use button clicks instead of long press detection
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click
+    onEdit(id);
   };
   
-  const handleMouseUp = () => {
-    if (pressTimer) {
-      clearTimeout(pressTimer);
-      setPressTimer(null);
-    }
-  };
-  
-  const handleClick = () => {
+  const handleCardClick = () => {
     onAddContribution(id);
   };
 
@@ -73,13 +61,7 @@ function SavingsGoalCard({
     <Card 
       className="overflow-hidden card-gradient border-t-4 cursor-pointer hover:shadow-md transition-shadow"
       style={{ borderTopColor: color }}
-      onClick={handleClick}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-      onTouchStart={handleMouseDown}
-      onTouchEnd={handleMouseUp}
-      onTouchCancel={handleMouseUp}
+      onClick={handleCardClick}
     >
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-3">
@@ -89,7 +71,18 @@ function SavingsGoalCard({
             </div>
             <h3 className="font-medium">{name}</h3>
           </div>
-          <span className="text-xs text-muted-foreground">Due {deadline}</span>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-8 w-8" 
+              onClick={handleEditClick}
+              title="Edit Goal"
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            <span className="text-xs text-muted-foreground">Due {deadline}</span>
+          </div>
         </div>
 
         <div className="progress-bar mb-2">

@@ -1,399 +1,458 @@
 
 import { MainLayout } from "@/components/layout/MainLayout";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Input } from "@/components/ui/input";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  SearchIcon,
-  HelpCircle,
-  FileText,
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { 
+  HelpCircle, 
+  BookOpen, 
   MessageSquare,
-  MailIcon,
-  BookOpen,
-  Video,
-  Receipt,
-  PiggyBank,
+  FileQuestion,
   DollarSign,
-  BarChart,
-  CreditCard,
-  Settings,
+  BarChart3,
+  PiggyBank,
   Wallet,
+  Settings,
   Users,
-  Zap
+  Mail,
+  Github,
+  Twitter,
+  Youtube,
+  ExternalLink
 } from "lucide-react";
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
 
 export default function Help() {
-  const [searchQuery, setSearchQuery] = useState("");
-  
-  // Common animation properties
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
-  };
-  
-  // FAQ items
-  const faqItems = [
-    {
-      question: "How do I add a new transaction?",
-      answer: "You can add a new transaction from the Dashboard or Transactions page by clicking the 'Add Transaction' button. Fill in the transaction details including name, amount, category, date, and type (income or expense)."
-    },
-    {
-      question: "How do I create a budget category?",
-      answer: "Navigate to the Budget page and click on 'Add Category'. Enter a name for your category, the allocated amount, and select a color. Your new budget category will appear in the budget breakdown."
-    },
-    {
-      question: "Can I edit my income or expense totals?",
-      answer: "Yes! On the Dashboard, press and hold (for about 4-5 seconds) on any of the overview cards (Income, Expenses, Savings). This will open an edit dialog where you can adjust the values."
-    },
-    {
-      question: "How do I create a savings goal?",
-      answer: "Visit the Savings page and click 'New Goal'. Enter your goal details including name, target amount, current savings, contribution frequency, and target date. Your new goal will appear in your savings dashboard."
-    },
-    {
-      question: "How can I track my spending by category?",
-      answer: "Your spending by category is automatically visualized in the Expense Breakdown chart on the Dashboard. As you add transactions, the chart will update to reflect your spending patterns."
-    },
-    {
-      question: "Can I edit or delete a transaction?",
-      answer: "Yes, on the Transactions page, find the transaction you want to modify. Click the three dots menu on the right side, then select 'Edit' or 'Delete' as needed."
-    },
-    {
-      question: "How do I update my profile information?",
-      answer: "Go to the Profile page from the sidebar menu. There you can update your personal details including name, email, and monthly income/expense goals."
-    },
-    {
-      question: "Is my data secure and private?",
-      answer: "Yes, your financial data is stored locally on your device and is not shared with any third parties. We use secure storage mechanisms to protect your information."
-    },
-    {
-      question: "Can I export my financial data?",
-      answer: "This feature is coming soon! We're working on implementing data export functionality so you can download your transaction history and financial reports."
-    },
-    {
-      question: "How do I get help if I have more questions?",
-      answer: "You can use the AI Assistant by clicking the AI button at the bottom right of any page. Our AI can answer questions, provide guidance, and help you use the app effectively."
-    }
-  ];
-  
-  // Filter FAQ items based on search
-  const filteredFaqItems = searchQuery
-    ? faqItems.filter(item => 
-        item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.answer.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : faqItems;
-
-  // Help categories
-  const helpCategories = [
-    { 
-      title: "Getting Started", 
-      icon: <BookOpen className="h-5 w-5" />,
-      topics: ["App Overview", "First Steps", "Setting Up Your Profile"]
-    },
-    { 
-      title: "Transactions", 
-      icon: <Receipt className="h-5 w-5" />,
-      topics: ["Adding Transactions", "Editing Transactions", "Categorizing Expenses"]
-    },
-    { 
-      title: "Budgeting", 
-      icon: <Wallet className="h-5 w-5" />,
-      topics: ["Creating a Budget", "Budget Categories", "Budget Tracking"]
-    },
-    { 
-      title: "Savings", 
-      icon: <PiggyBank className="h-5 w-5" />,
-      topics: ["Setting Goals", "Goal Progress", "Automatic Saving"]
-    },
-    { 
-      title: "Reports", 
-      icon: <BarChart className="h-5 w-5" />,
-      topics: ["Understanding Charts", "Income vs Expenses", "Spending Analysis"]
-    },
-    { 
-      title: "AI Features", 
-      icon: <Zap className="h-5 w-5" />,
-      topics: ["AI Assistant", "Financial Insights", "Custom Guidance"]
-    }
-  ];
-
   return (
     <MainLayout>
-      <motion.div 
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="max-w-5xl mx-auto"
-      >
-        <motion.div variants={item} className="flex flex-col gap-2 mb-6">
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-2">
           <h1 className="text-3xl font-bold tracking-tight">Help & Support</h1>
           <p className="text-muted-foreground">
-            Find answers to common questions and learn how to use all features
+            Get assistance with using the app and managing your finances
           </p>
-        </motion.div>
-        
-        <motion.div variants={item} className="relative mb-8">
-          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-5 w-5" />
-          <Input
-            placeholder="Search for help topics..."
-            className="pl-10 py-6 text-base"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </motion.div>
-        
-        <Tabs defaultValue="faq" className="w-full">
-          <motion.div variants={item}>
-            <TabsList className="w-full justify-start mb-6">
-              <TabsTrigger value="faq" className="px-6">FAQ</TabsTrigger>
-              <TabsTrigger value="topics" className="px-6">Help Topics</TabsTrigger>
-              <TabsTrigger value="tutorials" className="px-6">Tutorials</TabsTrigger>
-              <TabsTrigger value="contact" className="px-6">Contact Us</TabsTrigger>
-            </TabsList>
-          </motion.div>
-          
+        </div>
+
+        <Tabs defaultValue="faq">
+          <TabsList className="mb-6">
+            <TabsTrigger value="faq">
+              <FileQuestion className="h-4 w-4 mr-2" />
+              FAQ
+            </TabsTrigger>
+            <TabsTrigger value="guides">
+              <BookOpen className="h-4 w-4 mr-2" />
+              Guides
+            </TabsTrigger>
+            <TabsTrigger value="contact">
+              <MessageSquare className="h-4 w-4 mr-2" />
+              Contact
+            </TabsTrigger>
+          </TabsList>
+
           <TabsContent value="faq" className="mt-0">
-            <motion.div variants={item}>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <HelpCircle className="mr-2 h-5 w-5" />
-                    Frequently Asked Questions
-                  </CardTitle>
-                  <CardDescription>
-                    Quick answers to the most common questions about Savings Savvy
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {filteredFaqItems.length === 0 ? (
-                    <div className="text-center py-10">
-                      <HelpCircle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                      <h3 className="text-lg font-medium mb-2">No results found</h3>
-                      <p className="text-muted-foreground">
-                        Try adjusting your search terms or browse the categories below
-                      </p>
-                    </div>
-                  ) : (
-                    <Accordion type="single" collapsible className="w-full">
-                      {filteredFaqItems.map((item, index) => (
-                        <AccordionItem key={index} value={`item-${index}`}>
-                          <AccordionTrigger className="text-left font-medium">
-                            {item.question}
-                          </AccordionTrigger>
-                          <AccordionContent className="text-muted-foreground">
-                            {item.answer}
-                          </AccordionContent>
-                        </AccordionItem>
-                      ))}
-                    </Accordion>
-                  )}
-                </CardContent>
-              </Card>
-            </motion.div>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <HelpCircle className="h-5 w-5 mr-2" />
+                  Frequently Asked Questions
+                </CardTitle>
+                <CardDescription>
+                  Common questions and answers about using the app
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="item-1">
+                    <AccordionTrigger>How do I add a transaction?</AccordionTrigger>
+                    <AccordionContent>
+                      <p className="mb-3">To add a new transaction:</p>
+                      <ol className="list-decimal pl-5 space-y-2">
+                        <li>Navigate to the Transactions page using the sidebar.</li>
+                        <li>Click the "Add Transaction" button at the top of the page.</li>
+                        <li>Fill in the transaction details in the form (date, amount, category, etc.).</li>
+                        <li>Select whether it's an income or expense.</li>
+                        <li>Click "Save Transaction" to add it to your records.</li>
+                      </ol>
+                      <p className="mt-3">You can also add transactions directly from the Dashboard by clicking the "Quick Add" button.</p>
+                    </AccordionContent>
+                  </AccordionItem>
+                  
+                  <AccordionItem value="item-2">
+                    <AccordionTrigger>How do I create a savings goal?</AccordionTrigger>
+                    <AccordionContent>
+                      <p className="mb-3">Creating a savings goal is simple:</p>
+                      <ol className="list-decimal pl-5 space-y-2">
+                        <li>Go to the Savings page from the sidebar navigation.</li>
+                        <li>Click the "New Goal" button at the top of the page.</li>
+                        <li>Enter your goal details in the form, including:</li>
+                        <ul className="list-disc pl-5 mt-2 mb-2 space-y-1">
+                          <li>Goal name (e.g., "Vacation to Japan")</li>
+                          <li>Target amount (how much you need to save)</li>
+                          <li>Current amount (if you already have some saved)</li>
+                          <li>Category (to help organize your goals)</li>
+                          <li>Target date (when you need the money by)</li>
+                        </ul>
+                        <li>Click "Create Goal" to add it to your savings dashboard.</li>
+                      </ol>
+                      <p className="mt-3">To edit a goal, click on the Edit icon on the goal card. To add money to a goal, click directly on the goal card itself.</p>
+                    </AccordionContent>
+                  </AccordionItem>
+                  
+                  <AccordionItem value="item-3">
+                    <AccordionTrigger>How do I track my budget?</AccordionTrigger>
+                    <AccordionContent>
+                      <p className="mb-3">The Budget page provides comprehensive tools for tracking your spending:</p>
+                      <ol className="list-decimal pl-5 space-y-2">
+                        <li>Visit the Budget page from the main sidebar.</li>
+                        <li>Create budget categories by clicking "Add Category" and setting limits for each spending area.</li>
+                        <li>As you add transactions, they'll automatically count against your category budgets.</li>
+                        <li>The progress bars show how much of each budget you've used.</li>
+                        <li>Use the "Month" selector to view budgets for different time periods.</li>
+                      </ol>
+                      <p className="mt-3">The system will notify you when you're approaching or have exceeded your budget limits.</p>
+                    </AccordionContent>
+                  </AccordionItem>
+                  
+                  <AccordionItem value="item-4">
+                    <AccordionTrigger>How do I change my currency?</AccordionTrigger>
+                    <AccordionContent>
+                      <p className="mb-3">To change your display currency:</p>
+                      <ol className="list-decimal pl-5 space-y-2">
+                        <li>Go to the Settings page using the sidebar or clicking the gear icon.</li>
+                        <li>Find the "Currency Settings" section.</li>
+                        <li>Use the dropdown menu to select from available currencies.</li>
+                        <li>Click "Save Changes" to apply your new currency setting.</li>
+                      </ol>
+                      <p className="mt-3">The app will automatically update all financial displays to use your selected currency. Note that this is a display change only and doesn't convert actual values.</p>
+                    </AccordionContent>
+                  </AccordionItem>
+                  
+                  <AccordionItem value="item-5">
+                    <AccordionTrigger>Is my data secure and private?</AccordionTrigger>
+                    <AccordionContent>
+                      <p className="mb-3">Yes, your financial data is secure and private:</p>
+                      <ul className="list-disc pl-5 space-y-2">
+                        <li>All your data is stored locally on your device using your browser's storage.</li>
+                        <li>No financial information is transmitted to our servers.</li>
+                        <li>Your data remains accessible only to you on your device.</li>
+                        <li>We recommend using the app on a secure device with up-to-date software.</li>
+                        <li>For additional security, consider enabling password protection in the Settings.</li>
+                      </ul>
+                      <p className="mt-3">If you want to back up your data, use the export feature in Settings to save your information.</p>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </CardContent>
+            </Card>
           </TabsContent>
-          
-          <TabsContent value="topics" className="mt-0">
-            <motion.div variants={item}>
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {helpCategories.map((category, index) => (
-                  <Card key={index} className="hover:shadow-lg transition-shadow h-full">
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <div className="mr-3 p-2 rounded-full bg-primary/10 text-primary">
-                          {category.icon}
-                        </div>
-                        {category.title}
+
+          <TabsContent value="guides" className="mt-0">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <BookOpen className="h-5 w-5 mr-2" />
+                  User Guides
+                </CardTitle>
+                <CardDescription>
+                  Learn how to use all features of the app effectively
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <DollarSign className="h-5 w-5" />
+                        Managing Your Transactions
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <ul className="space-y-2">
-                        {category.topics.map((topic, idx) => (
-                          <li key={idx} className="flex items-center text-sm">
-                            <div className="h-1.5 w-1.5 rounded-full bg-primary mr-2"></div>
-                            <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                              {topic}
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                      <Button variant="ghost" size="sm" className="mt-4 w-full justify-start">
-                        <FileText className="mr-2 h-4 w-4" />
-                        View all topics
+                      <p className="mb-3">Learn how to track your income and expenses effectively.</p>
+                      <div className="space-y-2 mb-4">
+                        <Badge variant="outline" className="mr-2">Transaction Types</Badge>
+                        <Badge variant="outline" className="mr-2">Categories</Badge>
+                        <Badge variant="outline">Reporting</Badge>
+                      </div>
+                      
+                      <div className="mt-4 space-y-1">
+                        <p className="text-sm font-medium">Key Topics:</p>
+                        <ul className="list-disc pl-5 text-sm space-y-1 text-muted-foreground">
+                          <li>Adding and editing transactions</li>
+                          <li>Categorizing for better insights</li>
+                          <li>Filtering and searching</li>
+                          <li>Recurring transactions</li>
+                        </ul>
+                      </div>
+                      
+                      <div className="collapse-content mt-4 border-t pt-4">
+                        <Button variant="outline" className="w-full" onClick={() => {
+                          const content = document.getElementById('transactions-guide');
+                          if (content) content.classList.toggle('hidden');
+                        }}>
+                          View Details
+                        </Button>
+                        
+                        <div id="transactions-guide" className="hidden mt-4 text-sm">
+                          <h4 className="font-medium mb-2">Detailed Guide to Transaction Management</h4>
+                          
+                          <h5 className="font-medium mt-3 mb-1">1. Adding Transactions</h5>
+                          <p>The Transactions page is your central hub for recording all financial activity. To add a new transaction:</p>
+                          <ul className="list-disc pl-5 my-2 space-y-1">
+                            <li>Click "Add Transaction" button</li>
+                            <li>Select the transaction date (defaults to today)</li>
+                            <li>Enter the transaction amount</li>
+                            <li>Choose a category from the dropdown or create a new one</li>
+                            <li>Add a description for future reference</li>
+                            <li>Select whether it's an income or expense</li>
+                            <li>Save the transaction</li>
+                          </ul>
+                          
+                          <h5 className="font-medium mt-3 mb-1">2. Categorizing Effectively</h5>
+                          <p>Proper categorization helps you gain insights into your spending patterns:</p>
+                          <ul className="list-disc pl-5 my-2 space-y-1">
+                            <li>Use consistent categories across transactions</li>
+                            <li>Create subcategories for detailed tracking (e.g., Dining > Fast Food)</li>
+                            <li>Regularly review uncategorized transactions</li>
+                            <li>Consider creating categories that align with your budget</li>
+                          </ul>
+                          
+                          <h5 className="font-medium mt-3 mb-1">3. Transaction Analysis</h5>
+                          <p>The app provides several ways to analyze your transaction data:</p>
+                          <ul className="list-disc pl-5 my-2 space-y-1">
+                            <li>Use filters to view transactions by date range, category, or type</li>
+                            <li>Check the Dashboard for visual breakdowns of your spending</li>
+                            <li>Export data for detailed analysis in spreadsheet software</li>
+                            <li>Review monthly summaries to track changes over time</li>
+                          </ul>
+                          
+                          <h5 className="font-medium mt-3 mb-1">4. Advanced Features</h5>
+                          <p>Take advantage of these additional capabilities:</p>
+                          <ul className="list-disc pl-5 my-2 space-y-1">
+                            <li>Bulk edit transactions with similar attributes</li>
+                            <li>Set up transaction rules for automatic categorization</li>
+                            <li>Schedule recurring transactions for regular bills</li>
+                            <li>Use tags for cross-category organization</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <PiggyBank className="h-5 w-5" />
+                        Savings Goals
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="mb-3">Set up and track progress towards your financial goals.</p>
+                      <div className="space-y-2 mb-4">
+                        <Badge variant="outline" className="mr-2">Goal Setting</Badge>
+                        <Badge variant="outline" className="mr-2">Progress Tracking</Badge>
+                        <Badge variant="outline">Contributions</Badge>
+                      </div>
+                      
+                      <div className="mt-4 space-y-1">
+                        <p className="text-sm font-medium">Key Topics:</p>
+                        <ul className="list-disc pl-5 text-sm space-y-1 text-muted-foreground">
+                          <li>Creating specific, measurable goals</li>
+                          <li>Setting target dates</li>
+                          <li>Adding regular contributions</li>
+                          <li>Visualizing your progress</li>
+                        </ul>
+                      </div>
+                      
+                      <div className="collapse-content mt-4 border-t pt-4">
+                        <Button variant="outline" className="w-full" onClick={() => {
+                          const content = document.getElementById('savings-guide');
+                          if (content) content.classList.toggle('hidden');
+                        }}>
+                          View Details
+                        </Button>
+                        
+                        <div id="savings-guide" className="hidden mt-4 text-sm">
+                          <h4 className="font-medium mb-2">Comprehensive Savings Goal Guide</h4>
+                          
+                          <h5 className="font-medium mt-3 mb-1">1. Creating Effective Goals</h5>
+                          <p>The key to successful saving is setting clear, achievable goals:</p>
+                          <ul className="list-disc pl-5 my-2 space-y-1">
+                            <li>Be specific about what you're saving for (vacation, car, education)</li>
+                            <li>Set a realistic target amount based on research</li>
+                            <li>Choose appropriate deadlines that motivate without causing stress</li>
+                            <li>Break large goals into smaller milestones</li>
+                            <li>Use the right category to enable proper visualization</li>
+                          </ul>
+                          
+                          <h5 className="font-medium mt-3 mb-1">2. Making Regular Contributions</h5>
+                          <p>Consistent contributions are essential for reaching your goals:</p>
+                          <ul className="list-disc pl-5 my-2 space-y-1">
+                            <li>Click on a goal card to add a contribution</li>
+                            <li>Set up automatic contribution reminders</li>
+                            <li>Adjust contribution amounts as your financial situation changes</li>
+                            <li>Track your contribution history within each goal</li>
+                          </ul>
+                          
+                          <h5 className="font-medium mt-3 mb-1">3. Monitoring Progress</h5>
+                          <p>The app provides visual tools to track your savings journey:</p>
+                          <ul className="list-disc pl-5 my-2 space-y-1">
+                            <li>Progress bars show percentage completion</li>
+                            <li>Time-based projections help forecast completion dates</li>
+                            <li>Use the Savings dashboard to compare progress across goals</li>
+                            <li>Celebrate milestones to maintain motivation</li>
+                          </ul>
+                          
+                          <h5 className="font-medium mt-3 mb-1">4. Managing Your Goals</h5>
+                          <p>Keep your goals current and relevant:</p>
+                          <ul className="list-disc pl-5 my-2 space-y-1">
+                            <li>Click the edit button on any goal card to modify details</li>
+                            <li>Reprioritize goals as circumstances change</li>
+                            <li>Archive completed goals for future reference</li>
+                            <li>Regularly review and adjust targets as needed</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <BarChart3 className="h-5 w-5" />
+                        Budget Management
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="mb-3">Create and manage budgets to control your spending.</p>
+                      <div className="space-y-2 mb-4">
+                        <Badge variant="outline" className="mr-2">Budget Creation</Badge>
+                        <Badge variant="outline" className="mr-2">Spending Limits</Badge>
+                        <Badge variant="outline">Analysis</Badge>
+                      </div>
+                      
+                      <div className="mt-4 space-y-1">
+                        <p className="text-sm font-medium">Key Topics:</p>
+                        <ul className="list-disc pl-5 text-sm space-y-1 text-muted-foreground">
+                          <li>Setting category budgets</li>
+                          <li>Tracking monthly spending</li>
+                          <li>Analyzing budget performance</li>
+                          <li>Adjusting budgets over time</li>
+                        </ul>
+                      </div>
+                      
+                      <Button variant="outline" className="w-full mt-4">View Details</Button>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Settings className="h-5 w-5" />
+                        App Configuration
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="mb-3">Customize the app to suit your preferences and needs.</p>
+                      <div className="space-y-2 mb-4">
+                        <Badge variant="outline" className="mr-2">Preferences</Badge>
+                        <Badge variant="outline" className="mr-2">Currency</Badge>
+                        <Badge variant="outline">Data Management</Badge>
+                      </div>
+                      
+                      <div className="mt-4 space-y-1">
+                        <p className="text-sm font-medium">Key Topics:</p>
+                        <ul className="list-disc pl-5 text-sm space-y-1 text-muted-foreground">
+                          <li>Setting display preferences</li>
+                          <li>Changing currency options</li>
+                          <li>Managing notification settings</li>
+                          <li>Data backup and restore</li>
+                        </ul>
+                      </div>
+                      
+                      <Button variant="outline" className="w-full mt-4">View Details</Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="contact" className="mt-0">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <MessageSquare className="h-5 w-5 mr-2" />
+                  Contact Support
+                </CardTitle>
+                <CardDescription>
+                  Get in touch with our team for personalized assistance
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Mail className="h-5 w-5" />
+                        Email Support
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="mb-4">Our support team is available to help with any questions or issues.</p>
+                      <p className="text-sm text-muted-foreground mb-4">Average response time: 24 hours</p>
+                      <Button className="w-full">
+                        <Mail className="mr-2 h-4 w-4" />
+                        Contact Support
                       </Button>
                     </CardContent>
                   </Card>
-                ))}
-              </div>
-            </motion.div>
-          </TabsContent>
-          
-          <TabsContent value="tutorials" className="mt-0">
-            <motion.div variants={item} className="grid gap-6 md:grid-cols-2">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <CardContent className="p-0">
-                  <div className="h-40 bg-muted flex items-center justify-center">
-                    <Video className="h-12 w-12 text-muted-foreground" />
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-lg font-medium mb-2">Getting Started with Savings Savvy</h3>
-                    <p className="text-muted-foreground text-sm mb-4">
-                      Learn how to set up your account, add your first transaction, and create budgets
-                    </p>
-                    <div className="flex items-center text-xs text-muted-foreground">
-                      <span className="mr-4">5:32 mins</span>
-                      <span>Beginner</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <CardContent className="p-0">
-                  <div className="h-40 bg-muted flex items-center justify-center">
-                    <Video className="h-12 w-12 text-muted-foreground" />
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-lg font-medium mb-2">Creating and Managing Savings Goals</h3>
-                    <p className="text-muted-foreground text-sm mb-4">
-                      How to set up savings goals, track progress, and adjust contributions
-                    </p>
-                    <div className="flex items-center text-xs text-muted-foreground">
-                      <span className="mr-4">4:18 mins</span>
-                      <span>Intermediate</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <CardContent className="p-0">
-                  <div className="h-40 bg-muted flex items-center justify-center">
-                    <Video className="h-12 w-12 text-muted-foreground" />
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-lg font-medium mb-2">Effective Budgeting Strategies</h3>
-                    <p className="text-muted-foreground text-sm mb-4">
-                      Learn different budgeting methods and how to implement them with our app
-                    </p>
-                    <div className="flex items-center text-xs text-muted-foreground">
-                      <span className="mr-4">7:45 mins</span>
-                      <span>Advanced</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <CardContent className="p-0">
-                  <div className="h-40 bg-muted flex items-center justify-center">
-                    <Video className="h-12 w-12 text-muted-foreground" />
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-lg font-medium mb-2">Using the AI Assistant</h3>
-                    <p className="text-muted-foreground text-sm mb-4">
-                      How to leverage AI for financial insights, automation, and personalized advice
-                    </p>
-                    <div className="flex items-center text-xs text-muted-foreground">
-                      <span className="mr-4">6:12 mins</span>
-                      <span>Intermediate</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </TabsContent>
-          
-          <TabsContent value="contact" className="mt-0">
-            <motion.div variants={item} className="grid gap-6 md:grid-cols-3">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <CardContent className="p-6 flex flex-col items-center text-center">
-                  <div className="p-3 rounded-full bg-primary/10 text-primary mb-4">
-                    <MessageSquare className="h-6 w-6" />
-                  </div>
-                  <h3 className="text-lg font-medium mb-2">Chat Support</h3>
-                  <p className="text-muted-foreground text-sm mb-4">
-                    Chat with our AI assistant for immediate help with your questions
-                  </p>
-                  <Button className="w-full mt-auto">
-                    Open AI Chat
-                  </Button>
-                </CardContent>
-              </Card>
-              
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <CardContent className="p-6 flex flex-col items-center text-center">
-                  <div className="p-3 rounded-full bg-primary/10 text-primary mb-4">
-                    <MailIcon className="h-6 w-6" />
-                  </div>
-                  <h3 className="text-lg font-medium mb-2">Email Support</h3>
-                  <p className="text-muted-foreground text-sm mb-4">
-                    Send us an email and we'll get back to you within 24 hours
-                  </p>
-                  <Button variant="outline" className="w-full mt-auto">
-                    support@savingssavvy.com
-                  </Button>
-                </CardContent>
-              </Card>
-              
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <CardContent className="p-6 flex flex-col items-center text-center">
-                  <div className="p-3 rounded-full bg-primary/10 text-primary mb-4">
-                    <Users className="h-6 w-6" />
-                  </div>
-                  <h3 className="text-lg font-medium mb-2">Community</h3>
-                  <p className="text-muted-foreground text-sm mb-4">
-                    Join our community forum to get advice from other users
-                  </p>
-                  <Button variant="outline" className="w-full mt-auto">
-                    Visit Forum
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
+                  
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Users className="h-5 w-5" />
+                        Community Forum
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="mb-4">Connect with other users to share tips and solutions.</p>
+                      <p className="text-sm text-muted-foreground mb-4">Join thousands of users helping each other.</p>
+                      <Button variant="outline" className="w-full">
+                        <ExternalLink className="mr-2 h-4 w-4" />
+                        Visit Forum
+                      </Button>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="md:col-span-2">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg">Follow Us</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="mb-4">Stay updated with the latest news, updates, and tips.</p>
+                      <div className="flex flex-wrap gap-3">
+                        <Button variant="outline" size="lg" className="flex-1">
+                          <Twitter className="mr-2 h-4 w-4" />
+                          Twitter
+                        </Button>
+                        <Button variant="outline" size="lg" className="flex-1">
+                          <Github className="mr-2 h-4 w-4" />
+                          GitHub
+                        </Button>
+                        <Button variant="outline" size="lg" className="flex-1">
+                          <Youtube className="mr-2 h-4 w-4" />
+                          YouTube
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
-        
-        <motion.div variants={item} className="mt-12">
-          <div className="bg-muted rounded-lg p-6 flex flex-col md:flex-row items-center justify-between">
-            <div className="mb-4 md:mb-0 text-center md:text-left">
-              <h3 className="text-xl font-medium mb-2">Still need help?</h3>
-              <p className="text-muted-foreground max-w-md">
-                Our AI assistant is available 24/7 to answer your questions and provide personalized guidance.
-              </p>
-            </div>
-            <Button size="lg" className="px-8">
-              <Zap className="mr-2 h-5 w-5" />
-              Ask AI Assistant
-            </Button>
-          </div>
-        </motion.div>
-      </motion.div>
+      </div>
     </MainLayout>
   );
 }
