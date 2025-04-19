@@ -204,7 +204,7 @@ export default function Help() {
                             <li>Enter the transaction amount</li>
                             <li>Choose a category from the dropdown or create a new one</li>
                             <li>Add a description for future reference</li>
-                            <li>Select whether it's an income or expense</li>
+                            <li>Select whether it&apos;s an income or expense</li>
                             <li>Save the transaction</li>
                           </ul>
                           
@@ -212,7 +212,7 @@ export default function Help() {
                           <p>Proper categorization helps you gain insights into your spending patterns:</p>
                           <ul className="list-disc pl-5 my-2 space-y-1">
                             <li>Use consistent categories across transactions</li>
-                            <li>Create subcategories for detailed tracking (e.g., Dining > Fast Food)</li>
+                            <li>Create subcategories for detailed tracking (e.g., Dining {'>'} Fast Food)</li>
                             <li>Regularly review uncategorized transactions</li>
                             <li>Consider creating categories that align with your budget</li>
                           </ul>
