@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useAppContext } from "@/contexts/AppContext";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 interface BudgetCategoryProps {
   id: string;
@@ -19,6 +20,7 @@ interface BudgetCategoryProps {
   budget: number;
   icon: React.ReactNode;
   color: string;
+  currency: string;
   onLongPressStart?: (id: string) => void;
   onLongPressEnd?: () => void;
 }
@@ -35,12 +37,29 @@ const BudgetCategory = ({
   budget, 
   icon, 
   color, 
+  currency,
   onLongPressStart,
   onLongPressEnd
 }: BudgetCategoryProps) => {
   const percentage = Math.min((spent / budget) * 100, 100);
   const formattedPercentage = percentage.toFixed(0);
   
+  // Format amounts with the correct currency
+  const formatAmount = (amount: number) => {
+    try {
+      const formatter = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: currency,
+      });
+      return formatter.format(amount);
+    } catch (error) {
+      // Fallback if there's an error with the formatter
+      console.error("Currency formatting error:", error);
+      return `${currency} ${amount.toFixed(2)}`;
+    }
+  };
+  
+  // Optimize touch events to prevent UI hanging
   const handleTouchStart = () => {
     if (onLongPressStart) {
       onLongPressStart(id);
@@ -75,8 +94,8 @@ const BudgetCategory = ({
           <span className="font-medium text-sm">{name}</span>
         </div>
         <div className="text-sm">
-          <span className="font-semibold">${spent}</span>
-          <span className="text-muted-foreground"> / ${budget}</span>
+          <span className="font-semibold">{formatAmount(spent)}</span>
+          <span className="text-muted-foreground"> / {formatAmount(budget)}</span>
         </div>
       </div>
       <div className="progress-bar">
@@ -93,7 +112,7 @@ const BudgetCategory = ({
           {formattedPercentage}% spent
         </span>
         <span className="text-xs text-muted-foreground">
-          ${(budget - spent).toFixed(2)} left
+          {formatAmount(budget - spent)} left
         </span>
       </div>
     </motion.div>
@@ -101,7 +120,23 @@ const BudgetCategory = ({
 };
 
 export function BudgetProgress({ onLongPressStart, onLongPressEnd }: BudgetProgressProps) {
-  const { budgetCategories } = useAppContext();
+  const { budgetCategories, currency } = useAppContext();
+  const [localCurrency, setLocalCurrency] = useState(currency);
+
+  // Update currency when it changes in the context
+  useEffect(() => {
+    setLocalCurrency(currency);
+    
+    const handleCurrencyUpdate = (e: CustomEvent) => {
+      setLocalCurrency(e.detail);
+    };
+    
+    window.addEventListener('currency-updated', handleCurrencyUpdate as EventListener);
+    
+    return () => {
+      window.removeEventListener('currency-updated', handleCurrencyUpdate as EventListener);
+    };
+  }, [currency]);
 
   // Icon mapping for categories
   const getCategoryIcon = (name: string) => {
@@ -171,6 +206,7 @@ export function BudgetProgress({ onLongPressStart, onLongPressEnd }: BudgetProgr
           budget={category.allocated}
           icon={getCategoryIcon(category.name)}
           color={getCategoryColor(category.name, index)}
+          currency={localCurrency}
           onLongPressStart={onLongPressStart}
           onLongPressEnd={onLongPressEnd}
         />

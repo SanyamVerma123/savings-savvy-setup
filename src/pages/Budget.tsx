@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 
 export default function Budget() {
-  const { budgetCategories, addBudgetCategory, removeBudgetCategory, updateBudgetCategory } = useAppContext();
+  const { budgetCategories, addBudgetCategory, removeBudgetCategory, updateBudgetCategory, currency } = useAppContext();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -25,6 +26,36 @@ export default function Budget() {
   const [editCategoryAmount, setEditCategoryAmount] = useState<number>(0);
   
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
+  const [localCurrency, setLocalCurrency] = useState(currency);
+
+  // Listen for currency updates
+  useEffect(() => {
+    setLocalCurrency(currency);
+    
+    const handleCurrencyUpdate = (e: CustomEvent) => {
+      setLocalCurrency(e.detail);
+    };
+    
+    window.addEventListener('currency-updated', handleCurrencyUpdate as EventListener);
+    
+    return () => {
+      window.removeEventListener('currency-updated', handleCurrencyUpdate as EventListener);
+    };
+  }, [currency]);
+
+  // Format currency
+  const formatAmount = (amount: number) => {
+    try {
+      const formatter = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: localCurrency,
+      });
+      return formatter.format(amount);
+    } catch (error) {
+      console.error("Currency formatting error:", error);
+      return `${localCurrency} ${amount.toFixed(2)}`;
+    }
+  };
 
   const handleAddCategory = () => {
     if (!newCategoryName || newCategoryAmount <= 0) {
@@ -55,15 +86,22 @@ export default function Budget() {
     if (category) {
       const spentAmount = category.spent;
       
-      removeBudgetCategory(selectedCategoryId);
-      addBudgetCategory({
-        name: editCategoryName,
-        allocated: editCategoryAmount,
-        spent: spentAmount
-      });
-      
-      toast.success("Budget category updated successfully");
-      setIsEditDialogOpen(false);
+      // Prevent potential UI hang by using setTimeout
+      setTimeout(() => {
+        removeBudgetCategory(selectedCategoryId);
+        
+        // Small delay to ensure state updates properly
+        setTimeout(() => {
+          addBudgetCategory({
+            name: editCategoryName,
+            allocated: editCategoryAmount,
+            spent: spentAmount
+          });
+          
+          toast.success("Budget category updated successfully");
+          setIsEditDialogOpen(false);
+        }, 50);
+      }, 50);
     }
   };
 
@@ -76,6 +114,11 @@ export default function Budget() {
   };
 
   const handleLongPressStart = (id: string) => {
+    // Clear any existing timer
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+    }
+    
     const timer = setTimeout(() => {
       const category = budgetCategories.find(cat => cat.id === id);
       if (category) {
@@ -131,7 +174,7 @@ export default function Budget() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="allocated-amount">Monthly Budget</Label>
+                    <Label htmlFor="allocated-amount">Monthly Budget ({localCurrency})</Label>
                     <Input 
                       id="allocated-amount" 
                       type="number"
@@ -219,17 +262,17 @@ export default function Budget() {
                   <div className="space-y-4">
                     <div className="total-card bg-finance-income/10 border-finance-income/20">
                       <span className="text-sm text-muted-foreground">Total Budget</span>
-                      <span className="text-2xl font-bold">${totalBudget.toFixed(2)}</span>
+                      <span className="text-2xl font-bold">{formatAmount(totalBudget)}</span>
                     </div>
                     
                     <div className="total-card bg-finance-expense/10 border-finance-expense/20">
                       <span className="text-sm text-muted-foreground">Total Spent</span>
-                      <span className="text-2xl font-bold">${totalSpent.toFixed(2)}</span>
+                      <span className="text-2xl font-bold">{formatAmount(totalSpent)}</span>
                     </div>
                     
                     <div className="total-card bg-finance-savings/10 border-finance-savings/20">
                       <span className="text-sm text-muted-foreground">Remaining</span>
-                      <span className="text-2xl font-bold">${remaining.toFixed(2)}</span>
+                      <span className="text-2xl font-bold">{formatAmount(remaining)}</span>
                     </div>
 
                     <Button className="w-full" onClick={() => setIsAddDialogOpen(true)}>
@@ -258,7 +301,7 @@ export default function Budget() {
                         <SelectContent>
                           {budgetCategories.map((category) => (
                             <SelectItem key={category.id} value={category.id}>
-                              {category.name} (${category.allocated})
+                              {category.name} ({formatAmount(category.allocated)})
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -308,6 +351,9 @@ export default function Budget() {
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Edit Budget Category</DialogTitle>
+            <DialogDescription>
+              Update your budget category details
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
@@ -319,7 +365,7 @@ export default function Budget() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-allocated-amount">Monthly Budget</Label>
+              <Label htmlFor="edit-allocated-amount">Monthly Budget ({localCurrency})</Label>
               <Input 
                 id="edit-allocated-amount" 
                 type="number"
@@ -335,7 +381,7 @@ export default function Budget() {
               variant="destructive" 
               onClick={() => {
                 setIsEditDialogOpen(false);
-                setIsDeleteDialogOpen(true);
+                setTimeout(() => setIsDeleteDialogOpen(true), 100);
               }}
             >
               <Trash2 className="h-4 w-4 mr-2" />
