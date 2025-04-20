@@ -44,6 +44,7 @@ import { TransactionForm } from "@/components/transactions/TransactionForm";
 import { useAppContext } from "@/contexts/AppContext";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import { EditableTransaction } from "@/components/transactions/EditableTransaction";
 
 // Category icon mapping
 const getCategoryIcon = (category: string) => {
@@ -73,13 +74,45 @@ const formatDate = (dateString: string) => {
 };
 
 export default function Transactions() {
-  const { transactions, removeTransaction } = useAppContext();
+  const { transactions, removeTransaction, currency } = useAppContext();
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [sortBy, setSortBy] = useState("date-desc");
+  const [localCurrency, setLocalCurrency] = useState(currency);
+  const [editingItem, setEditingItem] = useState<string | null>(null);
   
   const [filteredTransactions, setFilteredTransactions] = useState(transactions);
+  
+  // Update currency when it changes in the context
+  useEffect(() => {
+    setLocalCurrency(currency);
+    
+    const handleCurrencyUpdate = (e: CustomEvent) => {
+      setLocalCurrency(e.detail);
+    };
+    
+    window.addEventListener('currency-updated', handleCurrencyUpdate as EventListener);
+    
+    return () => {
+      window.removeEventListener('currency-updated', handleCurrencyUpdate as EventListener);
+    };
+  }, [currency]);
+  
+  // Format amounts with the correct currency
+  const formatAmount = (amount: number) => {
+    try {
+      const formatter = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: localCurrency,
+      });
+      return formatter.format(amount);
+    } catch (error) {
+      // Fallback if there's an error with the formatter
+      console.error("Currency formatting error:", error);
+      return `${localCurrency} ${amount.toFixed(2)}`;
+    }
+  };
   
   useEffect(() => {
     let result = [...transactions];
@@ -128,6 +161,10 @@ export default function Transactions() {
       removeTransaction(id);
       toast.success("Transaction deleted successfully");
     }
+  };
+  
+  const handleEdit = (id: string) => {
+    setEditingItem(id);
   };
 
   // Get unique categories from transactions
@@ -331,8 +368,8 @@ export default function Transactions() {
                                     : "text-finance-expense"
                                 }`}
                               >
-                                {transaction.type === "income" ? "+" : "-"}$
-                                {transaction.amount.toFixed(2)}
+                                {transaction.type === "income" ? "+" : "-"}
+                                {formatAmount(transaction.amount).replace(/^[^\d]*/, '')}
                               </span>
                             </td>
                             <td className="p-4 align-middle text-right text-muted-foreground">
@@ -347,7 +384,7 @@ export default function Transactions() {
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                  <DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleEdit(transaction.id)}>
                                     <Edit className="mr-2 h-4 w-4" />
                                     Edit
                                   </DropdownMenuItem>
@@ -372,6 +409,24 @@ export default function Transactions() {
           </Card>
         </motion.div>
       </motion.div>
+      
+      {editingItem && (
+        <Dialog open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Edit className="h-4 w-4" />
+                Edit Transaction
+              </DialogTitle>
+            </DialogHeader>
+            <EditableTransaction 
+              id={editingItem}
+              onSave={() => setEditingItem(null)}
+              onCancel={() => setEditingItem(null)}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </MainLayout>
   );
 }

@@ -43,6 +43,7 @@ const BudgetCategory = ({
 }: BudgetCategoryProps) => {
   const percentage = Math.min((spent / budget) * 100, 100);
   const formattedPercentage = percentage.toFixed(0);
+  const [longPressTimer, setLongPressTimer] = useState<number | null>(null);
   
   // Format amounts with the correct currency
   const formatAmount = (amount: number) => {
@@ -59,18 +60,39 @@ const BudgetCategory = ({
     }
   };
   
-  // Optimize touch events to prevent UI hanging
+  // Optimize touch events to prevent UI hanging using timeouts
   const handleTouchStart = () => {
     if (onLongPressStart) {
-      onLongPressStart(id);
+      // Use setTimeout to avoid blocking the UI thread
+      const timer = window.setTimeout(() => {
+        onLongPressStart(id);
+      }, 10);
+      setLongPressTimer(timer);
     }
   };
 
   const handleTouchEnd = () => {
+    if (longPressTimer !== null) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+    
     if (onLongPressEnd) {
-      onLongPressEnd();
+      // Use setTimeout to avoid blocking the UI thread
+      setTimeout(() => {
+        onLongPressEnd();
+      }, 10);
     }
   };
+
+  // Clean up any pending timers on unmount
+  useEffect(() => {
+    return () => {
+      if (longPressTimer !== null) {
+        clearTimeout(longPressTimer);
+      }
+    };
+  }, [longPressTimer]);
 
   return (
     <motion.div 

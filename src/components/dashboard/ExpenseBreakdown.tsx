@@ -5,25 +5,63 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useAppContext } from "@/contexts/AppContext";
 import { AlertTriangle } from "lucide-react";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
-const CustomTooltip = ({ active, payload, totalValue }: any) => {
+const CustomTooltip = ({ active, payload, totalValue, currency }: any) => {
   if (active && payload && payload.length) {
-    return (
-      <div className="bg-white dark:bg-gray-800 p-3 shadow-lg rounded-lg border">
-        <p className="font-medium">{payload[0].name}</p>
-        <p className="text-finance-primary font-semibold">${payload[0].value}</p>
-        <p className="text-xs text-muted-foreground">
-          {((payload[0].value / (totalValue || 1)) * 100).toFixed(1)}% of total
-        </p>
-      </div>
-    );
+    try {
+      const formatter = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: currency || 'USD',
+      });
+      
+      return (
+        <div className="bg-white dark:bg-gray-800 p-3 shadow-lg rounded-lg border">
+          <p className="font-medium">{payload[0].name}</p>
+          <p className="text-finance-primary font-semibold">
+            {formatter.format(payload[0].value)}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {((payload[0].value / (totalValue || 1)) * 100).toFixed(1)}% of total
+          </p>
+        </div>
+      );
+    } catch (error) {
+      return (
+        <div className="bg-white dark:bg-gray-800 p-3 shadow-lg rounded-lg border">
+          <p className="font-medium">{payload[0].name}</p>
+          <p className="text-finance-primary font-semibold">
+            {currency || '$'}{payload[0].value}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {((payload[0].value / (totalValue || 1)) * 100).toFixed(1)}% of total
+          </p>
+        </div>
+      );
+    }
   }
   return null;
 };
 
 export function ExpenseBreakdown() {
   const isMobile = useIsMobile();
-  const { budgetCategories, transactions } = useAppContext();
+  const { budgetCategories, transactions, currency } = useAppContext();
+  const [localCurrency, setLocalCurrency] = useState(currency);
+  
+  // Update currency when it changes in the context
+  useEffect(() => {
+    setLocalCurrency(currency);
+    
+    const handleCurrencyUpdate = (e: CustomEvent) => {
+      setLocalCurrency(e.detail);
+    };
+    
+    window.addEventListener('currency-updated', handleCurrencyUpdate as EventListener);
+    
+    return () => {
+      window.removeEventListener('currency-updated', handleCurrencyUpdate as EventListener);
+    };
+  }, [currency]);
   
   // Process expenses from real data
   const totalExpenses = transactions
@@ -114,7 +152,7 @@ export function ExpenseBreakdown() {
                     />
                   ))}
                 </Pie>
-                <Tooltip content={<CustomTooltip totalValue={totalExpenses} />} />
+                <Tooltip content={<CustomTooltip totalValue={totalExpenses} currency={localCurrency} />} />
                 <Legend
                   layout={isMobile ? "horizontal" : "vertical"}
                   verticalAlign={isMobile ? "bottom" : "middle"}

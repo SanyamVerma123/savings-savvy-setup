@@ -33,12 +33,16 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
 
 // Routes component to use context
 const AppRoutes = () => {
-  const { checkLoginStatus } = useAppContext();
+  const { checkLoginStatus, currency } = useAppContext();
   
-  // Force initial login check
+  // Force initial login check and set up global currency observer
   useEffect(() => {
     checkLoginStatus();
-  }, [checkLoginStatus]);
+    
+    // Dispatch an initial currency update event to ensure all components have the current currency
+    const updateEvent = new CustomEvent('currency-updated', { detail: currency });
+    window.dispatchEvent(updateEvent);
+  }, [checkLoginStatus, currency]);
   
   return (
     <Routes>
