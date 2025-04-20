@@ -29,7 +29,7 @@ export const useAI = () => {
 };
 
 export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { transactions, budgetCategories, savingsGoals, deviceId } = useAppContext();
+  const { transactions, budgetCategories, savingsGoals, deviceId, currency } = useAppContext();
   // Use the provided API key as the default, but still allow user to change it if needed
   const [apiKey, setApiKey] = useState<string>(() => {
     const storedKey = localStorage.getItem(`ai_api_key_${deviceId}`);
@@ -119,6 +119,7 @@ export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
         totalExpenses: transactions
           .filter(tx => tx.type === 'expense')
           .reduce((sum, tx) => sum + tx.amount, 0),
+        currentCurrency: currency,
         // Add more contextual information for better AI assistance
         budgetStatus: budgetCategories.map(cat => ({
           category: cat.name,

@@ -7,15 +7,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { format } from "date-fns";
 import { useAppContext } from "@/contexts/AppContext";
 import { useEffect, useState } from "react";
@@ -27,6 +18,17 @@ export function RecentTransactions() {
   // Update local currency when context currency changes
   useEffect(() => {
     setLocalCurrency(currency);
+    
+    // Listen for currency updates from the context
+    const handleCurrencyUpdate = (e: CustomEvent) => {
+      setLocalCurrency(e.detail);
+    };
+    
+    window.addEventListener('currency-updated', handleCurrencyUpdate as EventListener);
+    
+    return () => {
+      window.removeEventListener('currency-updated', handleCurrencyUpdate as EventListener);
+    };
   }, [currency]);
   
   const formatAmount = (amount: number) => {

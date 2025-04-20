@@ -15,14 +15,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 export function ConsolidatedAIButton() {
   const [isOpen, setIsOpen] = useState(false);
   const [showChat, setShowChat] = useState(false);
+  const [aiResponse, setAiResponse] = useState<string | null>(null);
   const { 
     language, 
     setLanguage, 
     availableLanguages,
     askAI,
-    isLoading,
-    response
+    isLoading
   } = useAI();
+
+  const handleAskAI = async (question: string) => {
+    setShowChat(true);
+    const response = await askAI(question);
+    setAiResponse(response);
+  };
 
   return (
     <>
@@ -70,10 +76,7 @@ export function ConsolidatedAIButton() {
 
               <div className="grid grid-cols-3 gap-2">
                 <Button 
-                  onClick={() => {
-                    askAI("Analyze my spending habits");
-                    setShowChat(true);
-                  }}
+                  onClick={() => handleAskAI("Analyze my spending habits")}
                   className="flex flex-col items-center justify-center h-24 p-2"
                   variant="outline"
                 >
@@ -82,10 +85,7 @@ export function ConsolidatedAIButton() {
                 </Button>
                 
                 <Button 
-                  onClick={() => {
-                    askAI("Give me saving tips");
-                    setShowChat(true);
-                  }}
+                  onClick={() => handleAskAI("Give me saving tips")}
                   className="flex flex-col items-center justify-center h-24 p-2"
                   variant="outline"
                 >
@@ -94,10 +94,7 @@ export function ConsolidatedAIButton() {
                 </Button>
                 
                 <Button 
-                  onClick={() => {
-                    askAI("Suggest a budget plan");
-                    setShowChat(true);
-                  }}
+                  onClick={() => handleAskAI("Suggest a budget plan")}
                   className="flex flex-col items-center justify-center h-24 p-2"
                   variant="outline"
                 >
@@ -120,9 +117,9 @@ export function ConsolidatedAIButton() {
                     <div className="flex items-center justify-center h-full">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                     </div>
-                  ) : response ? (
+                  ) : aiResponse ? (
                     <div className="text-sm">
-                      {response}
+                      {aiResponse}
                     </div>
                   ) : (
                     <div className="text-center text-muted-foreground h-full flex items-center justify-center">

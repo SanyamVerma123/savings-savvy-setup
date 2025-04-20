@@ -164,6 +164,17 @@ export function OverviewCards() {
   // Update local currency when context currency changes
   useEffect(() => {
     setLocalCurrency(currency);
+    
+    // Listen for currency updates from the context
+    const handleCurrencyUpdate = (e: CustomEvent) => {
+      setLocalCurrency(e.detail);
+    };
+    
+    window.addEventListener('currency-updated', handleCurrencyUpdate as EventListener);
+    
+    return () => {
+      window.removeEventListener('currency-updated', handleCurrencyUpdate as EventListener);
+    };
   }, [currency]);
   
   // Format currency values

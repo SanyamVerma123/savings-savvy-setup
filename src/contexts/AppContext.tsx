@@ -135,7 +135,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     try {
       localStorage.setItem('currency', newCurrency);
       setCurrencyState(newCurrency);
-      toast.success(`Currency changed to ${newCurrency}`);
+      setTimeout(() => {
+        const updateEvent = new CustomEvent('currency-updated', { detail: newCurrency });
+        window.dispatchEvent(updateEvent);
+        toast.success(`Currency changed to ${newCurrency}`);
+      }, 10);
     } catch (error) {
       console.error("Error updating currency:", error);
       toast.error("Failed to update currency. Please try again.");
