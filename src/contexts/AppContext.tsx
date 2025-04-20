@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface UserData {
   name: string;
@@ -59,6 +60,10 @@ interface AppContextType {
   setHasCompletedOnboarding: (completed: boolean) => void;
   currency: string;
   setCurrency: (currency: string) => void;
+  isLoggedIn: boolean;
+  setIsLoggedIn: (loggedIn: boolean) => void;
+  checkLoginStatus: () => boolean;
+  requireLogin: () => boolean;
 }
 
 const defaultContext: AppContextType = {
@@ -83,7 +88,11 @@ const defaultContext: AppContextType = {
   hasCompletedOnboarding: false,
   setHasCompletedOnboarding: () => {},
   currency: localStorage.getItem('currency') || 'USD',
-  setCurrency: () => {}
+  setCurrency: () => {},
+  isLoggedIn: false,
+  setIsLoggedIn: () => {},
+  checkLoginStatus: () => false,
+  requireLogin: () => false
 };
 
 const AppContext = createContext<AppContextType>(defaultContext);
@@ -101,13 +110,32 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [budgetCategories, setBudgetCategories] = useState<BudgetCategoryType[]>([]);
   const [deviceId, setDeviceId] = useState<string>('');
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean>(false);
-  const [currency, setCurrency] = useState<string>(localStorage.getItem('currency') || 'USD');
+  const [currency, setCurrencyState] = useState<string>(localStorage.getItem('currency') || 'USD');
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  
+  const navigate = useNavigate();
+
+  const checkLoginStatus = () => {
+    const isLoggedIn = !!userData || localStorage.getItem('isLoggedIn') === 'true';
+    setIsLoggedIn(isLoggedIn);
+    return isLoggedIn;
+  };
+
+  const requireLogin = () => {
+    const loginStatus = checkLoginStatus();
+    if (!loginStatus) {
+      navigate('/login');
+      toast.error("Please log in to use the app");
+      return false;
+    }
+    return true;
+  };
 
   const handleSetCurrency = (newCurrency: string) => {
     try {
       localStorage.setItem('currency', newCurrency);
-      setCurrency(newCurrency);
-      console.log(`Currency updated to: ${newCurrency}`);
+      setCurrencyState(newCurrency);
+      toast.success(`Currency changed to ${newCurrency}`);
     } catch (error) {
       console.error("Error updating currency:", error);
       toast.error("Failed to update currency. Please try again.");
@@ -126,6 +154,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     
     const onboardingCompleted = localStorage.getItem('onboardingCompleted') === 'true';
     setHasCompletedOnboarding(onboardingCompleted);
+    
+    checkLoginStatus();
   }, []);
 
   useEffect(() => {
@@ -170,8 +200,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setUserDataState(data);
     if (data) {
       localStorage.setItem(`userData_${deviceId}`, JSON.stringify(data));
+      localStorage.setItem('isLoggedIn', 'true');
+      setIsLoggedIn(true);
     } else {
       localStorage.removeItem(`userData_${deviceId}`);
+      localStorage.removeItem('isLoggedIn');
+      setIsLoggedIn(false);
     }
   };
 
@@ -418,7 +452,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       hasCompletedOnboarding,
       setHasCompletedOnboarding,
       currency,
-      setCurrency: handleSetCurrency
+      setCurrency: handleSetCurrency,
+      isLoggedIn,
+      setIsLoggedIn,
+      checkLoginStatus,
+      requireLogin
     }}>
       {children}
     </AppContext.Provider>

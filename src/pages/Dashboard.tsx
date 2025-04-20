@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { OverviewCards } from "@/components/dashboard/OverviewCards";
@@ -14,13 +15,13 @@ import { useAppContext } from "@/contexts/AppContext";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { AIAssistant } from "@/components/ai/AIAssistant";
+import { ConsolidatedAIButton } from "@/components/ai/ConsolidatedAIButton";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EditableTransaction } from "@/components/transactions/EditableTransaction";
 import { NotificationButton } from "@/components/dashboard/NotificationButton";
 
 export default function Dashboard() {
-  const { transactions, userData } = useAppContext();
+  const { transactions, userData, requireLogin } = useAppContext();
   const [currentMonth] = useState(() => {
     const now = new Date();
     return now.toLocaleString('default', { month: 'long', year: 'numeric' });
@@ -31,6 +32,9 @@ export default function Dashboard() {
   const [editingItem, setEditingItem] = useState<string | null>(null);
   
   useEffect(() => {
+    // Require login for the dashboard
+    requireLogin();
+    
     const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
     if (hasSeenWelcome) {
       setShowWelcome(false);
@@ -44,7 +48,7 @@ export default function Dashboard() {
         });
       }, 1500);
     }
-  }, [transactions]);
+  }, [transactions, requireLogin]);
   
   const handleDismissWelcome = () => {
     localStorage.setItem('hasSeenWelcome', 'true');
@@ -177,7 +181,7 @@ export default function Dashboard() {
         </motion.div>
       </motion.div>
       
-      <AIAssistant />
+      <ConsolidatedAIButton />
       
       {editingItem && (
         <Dialog open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>

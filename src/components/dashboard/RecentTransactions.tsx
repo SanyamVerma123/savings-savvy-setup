@@ -53,32 +53,34 @@ export function RecentTransactions() {
       </CardHeader>
       <CardContent className="pl-2 pb-4">
         <ScrollArea className="h-[400px] w-full">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[100px]">Date</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead className="text-center">Type</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {transactions.map((transaction) => (
-                <TableRow key={transaction.id}>
-                  <TableCell className="font-medium w-[100px]">
+          <div className="grid grid-cols-1 gap-3 pr-3">
+            {transactions.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No transactions yet. Add your first transaction!
+              </div>
+            ) : (
+              transactions.map((transaction) => (
+                <div 
+                  key={transaction.id} 
+                  className="border rounded-lg p-3 bg-card hover:bg-secondary/30 transition-colors"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <h4 className="font-medium">{transaction.name}</h4>
+                      <p className="text-sm text-muted-foreground">{transaction.category}</p>
+                    </div>
+                    <div className={`text-right ${transaction.type === 'income' ? 'text-finance-income' : 'text-finance-expense'}`}>
+                      <p className="font-bold">{formatAmount(transaction.amount)}</p>
+                      <p className="text-xs">{transaction.type}</p>
+                    </div>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
                     {format(new Date(transaction.date), "MMM dd, yyyy")}
-                  </TableCell>
-                  <TableCell>{transaction.category}</TableCell>
-                  <TableCell>{transaction.name}</TableCell>
-                  <TableCell className="text-right">
-                    {formatAmount(transaction.amount)}
-                  </TableCell>
-                  <TableCell className="text-center">{transaction.type}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </ScrollArea>
       </CardContent>
     </Card>

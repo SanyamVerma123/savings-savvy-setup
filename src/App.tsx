@@ -1,5 +1,5 @@
 
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Settings from "./pages/Settings";
@@ -15,8 +15,74 @@ import { AppProvider } from "./contexts/AppContext";
 import { AIProvider } from "./contexts/AIContext";
 import { OnboardingWrapper } from "./components/onboarding/OnboardingWrapper";
 import { useEffect } from "react";
+import { useAppContext } from "./contexts/AppContext";
 
 import "./App.css";
+
+// Protected route component
+const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+  const { checkLoginStatus } = useAppContext();
+  const isLoggedIn = checkLoginStatus();
+  
+  if (!isLoggedIn) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return children;
+};
+
+// Routes component to use context
+const AppRoutes = () => {
+  const { checkLoginStatus } = useAppContext();
+  
+  // Force initial login check
+  useEffect(() => {
+    checkLoginStatus();
+  }, [checkLoginStatus]);
+  
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/onboarding" element={<OnboardingWrapper />} />
+      <Route path="/" element={
+        <ProtectedRoute>
+          <Dashboard />
+        </ProtectedRoute>
+      } />
+      <Route path="/settings" element={
+        <ProtectedRoute>
+          <Settings />
+        </ProtectedRoute>
+      } />
+      <Route path="/profile" element={
+        <ProtectedRoute>
+          <Profile />
+        </ProtectedRoute>
+      } />
+      <Route path="/budget" element={
+        <ProtectedRoute>
+          <Budget />
+        </ProtectedRoute>
+      } />
+      <Route path="/transactions" element={
+        <ProtectedRoute>
+          <Transactions />
+        </ProtectedRoute>
+      } />
+      <Route path="/savings" element={
+        <ProtectedRoute>
+          <Savings />
+        </ProtectedRoute>
+      } />
+      <Route path="/help" element={
+        <ProtectedRoute>
+          <Help />
+        </ProtectedRoute>
+      } />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+};
 
 function App() {
   // Make the app display in fullscreen
@@ -54,18 +120,7 @@ function App() {
       <AppProvider>
         <AIProvider>
           <div className="h-full w-full">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/onboarding" element={<OnboardingWrapper />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/budget" element={<Budget />} />
-              <Route path="/transactions" element={<Transactions />} />
-              <Route path="/savings" element={<Savings />} />
-              <Route path="/help" element={<Help />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <AppRoutes />
             <Toaster />
           </div>
         </AIProvider>
