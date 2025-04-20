@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 
 interface AIContextType {
   isLoading: boolean;
-  askAI: (question: string) => Promise<string>;
+  askAI: (question: string, customSystemPrompt?: string) => Promise<string>;
   setApiKey: (key: string) => void;
   setEndpointUrl: (url: string) => void;
   setModelName: (model: string) => void;
@@ -100,7 +100,7 @@ export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     localStorage.setItem(`ai_language_${deviceId}`, lang);
   };
 
-  const askAI = async (question: string): Promise<string> => {
+  const askAI = async (question: string, customSystemPrompt?: string): Promise<string> => {
     if (!apiKey) {
       return "Please provide your API key to use the AI assistant.";
     }
@@ -138,6 +138,22 @@ export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
         }))
       };
 
+      // Build the system prompt - use custom if provided, otherwise use default
+      const systemPrompt = customSystemPrompt || 
+        `You are a conversational financial assistant that provides personalized advice based on transaction history, budgets, and savings goals. 
+        
+        Be extremely concise and casual, as if you're texting a friend. Keep answers under 2-3 short sentences when possible. Only provide detailed analysis when specifically asked.
+        
+        You have access to the user's financial data, including transactions, budget categories, and savings goals. Use this information to provide targeted, practical advice.
+        
+        When appropriate, suggest specific actions like "Set up an alert for your dining budget" rather than long explanations.
+        
+        If you spot issues (like overspending), be direct: "You're over budget on dining by 15%. Try cooking at home this week."
+        
+        Use a friendly, conversational tone that feels like chatting with a helpful friend, not a formal advisor.
+        
+        Respond in the following language: ${language}. If you don't know this language, respond in English but mention you don't support that language yet.`;
+
       // Use the standard OpenAI-compatible API format regardless of the endpoint
       const response = await fetch(endpointUrl, {
         method: "POST",
@@ -150,19 +166,7 @@ export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
           messages: [
             {
               role: "system",
-              content: `You are a conversational financial assistant that provides personalized advice based on transaction history, budgets, and savings goals. 
-              
-              Be extremely concise and casual, as if you're texting a friend. Keep answers under 2-3 short sentences when possible. Only provide detailed analysis when specifically asked.
-              
-              You have access to the user's financial data, including transactions, budget categories, and savings goals. Use this information to provide targeted, practical advice.
-              
-              When appropriate, suggest specific actions like "Set up an alert for your dining budget" rather than long explanations.
-              
-              If you spot issues (like overspending), be direct: "You're over budget on dining by 15%. Try cooking at home this week."
-              
-              Use a friendly, conversational tone that feels like chatting with a helpful friend, not a formal advisor.
-              
-              Respond in the following language: ${language}. If you don't know this language, respond in English but mention you don't support that language yet.`
+              content: systemPrompt
             },
             {
               role: "user",

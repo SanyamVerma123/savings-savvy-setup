@@ -10,6 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
 import { useAppContext } from "@/contexts/AppContext";
 import { useEffect, useState } from "react";
+import { DollarSign, TrendingUp, TrendingDown } from "lucide-react";
 
 export function RecentTransactions() {
   const { transactions, currency } = useAppContext();
@@ -45,6 +46,43 @@ export function RecentTransactions() {
     }
   };
 
+  // Group transactions by category
+  const getCategoryIcon = (category: string) => {
+    // Map category to emoji
+    const categoryIcons: Record<string, string> = {
+      'Food': '🍔',
+      'Dining': '🍽️',
+      'Restaurant': '🍲',
+      'Groceries': '🛒',
+      'Transport': '🚗',
+      'Transportation': '🚆',
+      'Housing': '🏠',
+      'Rent': '🏢',
+      'Utilities': '💡',
+      'Entertainment': '🎬',
+      'Shopping': '🛍️',
+      'Health': '🏥',
+      'Education': '📚',
+      'Personal': '👤',
+      'Travel': '✈️',
+      'Income': '💰',
+      'Salary': '💵',
+      'Investments': '📈',
+      'Miscellaneous': '📦',
+      'Other': '❓',
+    };
+    
+    // Search for partial matches too
+    for (const [key, icon] of Object.entries(categoryIcons)) {
+      if (category.toLowerCase().includes(key.toLowerCase())) {
+        return icon;
+      }
+    }
+    
+    // Default icon if no match
+    return category.toLowerCase().includes('income') ? '💰' : '💸';
+  };
+
   return (
     <Card className="h-full card-gradient">
       <CardHeader>
@@ -64,15 +102,23 @@ export function RecentTransactions() {
               transactions.map((transaction) => (
                 <div 
                   key={transaction.id} 
-                  className="border rounded-lg p-3 bg-card hover:bg-secondary/30 transition-colors"
+                  className="border rounded-lg p-3 bg-card hover:bg-secondary/30 transition-colors shadow-sm"
                 >
                   <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h4 className="font-medium">{transaction.name}</h4>
-                      <p className="text-sm text-muted-foreground">{transaction.category}</p>
+                    <div className="flex items-center gap-2">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-lg">
+                        {getCategoryIcon(transaction.category)}
+                      </div>
+                      <div>
+                        <h4 className="font-medium">{transaction.name}</h4>
+                        <p className="text-sm text-muted-foreground">{transaction.category}</p>
+                      </div>
                     </div>
                     <div className={`text-right ${transaction.type === 'income' ? 'text-finance-income' : 'text-finance-expense'}`}>
-                      <p className="font-bold">{formatAmount(transaction.amount)}</p>
+                      <p className="font-bold flex items-center gap-1">
+                        {transaction.type === 'income' ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                        {formatAmount(transaction.amount)}
+                      </p>
                       <p className="text-xs">{transaction.type}</p>
                     </div>
                   </div>
